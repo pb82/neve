@@ -1,10 +1,11 @@
 BIN = neve
+LIB = -lmicrohttpd -luv
 
-main.o: main.cpp
+.main.o: main.cpp
 	$(CXX) -c main.cpp
 
-build: main.o
-	$(CXX) main.o -o $(BIN)
+all: main.o
+	$(CXX) $(LIB) main.o -o $(BIN)
 
 clean:
 	rm -f $(BIN)
