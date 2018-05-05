@@ -1,5 +1,7 @@
 *.o
 neve
+
+# Qt Creator
 neve.config
 neve.files
 neve.includes

@@ -8,6 +8,8 @@
 #include <cmath>
 #include <map>
 
+#include <lua.h>
+
 namespace JSON {
 	enum JsonType {
 		JSON_STRING = 0,
