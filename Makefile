@@ -1,6 +1,9 @@
 BIN = neve
 LIB = -lmicrohttpd -luv
 
+check:
+	cat -e -t -v  Makefile
+
 json/parser.o: json/parser.cpp json/parser.hpp
 	$(CXX) -c json/parser.cpp -o json/parser.o
 
@@ -15,4 +18,5 @@ all: main.o json/printer.o json/parser.o
 
 clean:
 	rm -f $(BIN)
+	rm -f *.o
 	rm -f **/*.o
