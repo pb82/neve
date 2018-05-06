@@ -1,10 +1,13 @@
 #include "server.hpp"
 
+JSON::Printer HttpServer::printer;
+
 HttpServer::HttpServer(int port) : port(port) { }
 
 HttpServer::~HttpServer() {
 	if (server) {
 		MHD_stop_daemon(server);
+		server = nullptr;
 	}
 }
 
@@ -39,17 +42,30 @@ int HttpServer::onRequest(void *cls, MHD_Connection *c, const char *url,
 
 	for (auto& path: This->routes) {
 		if (path.get()->match(method, url)) {
-			path.get()->callback([c](){
-				MHD_Response *response = replyText("OK");
+			path.get()->callback([c](JSON::Value *result){
+				MHD_resume_connection(c);
+
+				std::string json = printer.print(*result);
+
+				MHD_Response *response = nullptr;
+				response = MHD_create_response_from_buffer(json.size(),
+					(void *) json.c_str(), MHD_RESPMEM_MUST_COPY);
+
+				MHD_add_response_header(response, "Content-Type", "text/plain");
 				MHD_queue_response(c, MHD_HTTP_OK, response);
 				MHD_destroy_response(response);
 			});
+			MHD_suspend_connection(c);
 			return MHD_YES;
 		}
 	}
 
 	// No suitable route found
-	MHD_Response *response = replyText("Not found");
+	const char *message = "Not found";
+	MHD_Response *response = nullptr;
+	response = MHD_create_response_from_buffer(std::strlen(message),
+		(void *) message, MHD_RESPMEM_PERSISTENT);
+
 	int ret = MHD_queue_response(c, MHD_HTTP_NOT_FOUND, response);
 	MHD_destroy_response(response);
 	return ret;
@@ -58,8 +74,8 @@ int HttpServer::onRequest(void *cls, MHD_Connection *c, const char *url,
 bool HttpServer::run() {
 	logger.info("starting server on port %d", port);
 
-	server = MHD_start_daemon(
-				MHD_USE_SELECT_INTERNALLY,
+	server = MHD_start_daemon(				
+				MHD_USE_SELECT_INTERNALLY | MHD_USE_SUSPEND_RESUME,
 				port,			// Port
 				nullptr,		// Accept policy callback
 				nullptr,		// Accept policy data

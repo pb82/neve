@@ -7,9 +7,10 @@
 #include <vector>
 #include <map>
 
+#include "../json/value.hpp"
+
 // Optional callback when a path matches
-typedef std::function<void()> DoneCallback;
-typedef std::function<void(DoneCallback)> MatchCallback;
+typedef std::function<void(std::function<void(JSON::Value *result)>)> MatchCallback;
 
 // Used to store path variables
 typedef std::map<std::string, std::string> PathParams;
@@ -52,7 +53,6 @@ public:
 	 * @brief reset Reset index to zero
 	 */
 	void reset();
-
 private:
 	std::ostringstream ss;
 	std::vector<Fragment> fragments;

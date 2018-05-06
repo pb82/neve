@@ -8,22 +8,39 @@
 #include "logger/logger.hpp"
 #include "http/path.hpp"
 #include "http/server.hpp"
+#include "loop/loop.hpp"
 
 #define PORT 8080
 
-int main() {
-	Logger logger;
-	HttpServer server(PORT);
-	int count = 0;
+static Loop *loop = new Loop;
+// static HttpServer *server = new HttpServer(PORT);
 
-	server.get("/ping", [&count](DoneCallback done) {
-		count++;
-		done();
+void onSignal(int sig) {
+	//delete server;
+	delete loop;
+	exit(sig);
+}
+
+void connectSignals() {
+	signal(SIGABRT, onSignal);
+	signal(SIGTERM, onSignal);
+	signal(SIGINT,  onSignal);
+	signal(SIGSEGV, onSignal);
+}
+
+int main() {
+	connectSignals();
+	/*
+	server->get("/ping", [](DoneCallback done) {
+		Job *job = new Job;
+		job->type = PING;
+		job->callback = done;
+		loop->enqueue(job);
 	});
 
-	server.run();
-	getchar();
+	server->run();
+	*/
+	loop->run();
 
-	std::cout << "Requests received: " << count << std::endl;
     return 0;
 }

@@ -9,6 +9,9 @@ first:
 check:
 	cat -e -t -v  Makefile
 
+loop/loop.p: loop/loop.cpp loop/loop.hpp
+	$(CXX) -g -c loop/loop.cpp -o loop/loop.o
+
 http/server.o: http/server.cpp http/server.hpp
 	$(CXX) -g -c http/server.cpp -o http/server.o
 
@@ -27,9 +30,10 @@ json/printer.o: json/printer.cpp json/printer.hpp
 main.o: main.cpp
 	$(CXX) -g -c main.cpp
 
-all: main.o json/printer.o json/parser.o logger/logger.o http/path.o http/server.o
+all: main.o json/printer.o json/parser.o logger/logger.o http/path.o http/server.o \
+		loop/loop.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
-		http/path.o http/server.o main.o \
+		http/path.o http/server.o loop/loop.o main.o \
 		-pipe -g -Wall -W -fPIC -o $(BIN)
 
 .PHONY: clean

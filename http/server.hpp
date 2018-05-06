@@ -8,7 +8,10 @@
 #include <memory>
 
 #include "../logger/logger.hpp"
+#include "../json/printer.hpp"
 #include "path.hpp"
+
+typedef std::function<void(JSON::Value *result)> DoneCallback;
 
 class HttpServer {
 public:
@@ -27,6 +30,7 @@ private:
 	int port;
 
 	Logger logger;
+	static JSON::Printer printer;
 	std::vector<std::unique_ptr<Path>> routes;
 };
 
