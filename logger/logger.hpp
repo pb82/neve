@@ -33,14 +33,16 @@ enum LogLevel {
 class Logger
 {
 public:
+	Logger();
 	Logger(int level);
+
 	LOG_FN(error,	"Error",	Error)
 	LOG_FN(warn,	"Warn",		Warn)
 	LOG_FN(info,	"Info",		Info)
 	LOG_FN(debug,	"Debug",	Debug)
 private:
 	void log(const char *tag, const char *format, ...);
-	int level = Debug;
+	static int level;
 };
 
 #endif // LOGGER_H

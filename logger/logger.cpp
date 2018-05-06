@@ -1,6 +1,11 @@
 #include "logger.hpp"
 
-Logger::Logger(int level) : level(level) { }
+int Logger::level = Debug;
+
+Logger::Logger() { }
+Logger::Logger(int level) {
+	Logger::level = level;
+}
 
 void Logger::log(const char *tag, const char *format, ...) {
 	va_list argptr;
