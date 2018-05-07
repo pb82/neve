@@ -7,7 +7,6 @@ HttpServer::HttpServer(int port) : port(port) { }
 HttpServer::~HttpServer() {
 	if (server) {
 		MHD_stop_daemon(server);
-		server = nullptr;
 	}
 }
 

@@ -12,11 +12,11 @@
 
 #define PORT 8080
 
-static Loop *loop = new Loop;
-// static HttpServer *server = new HttpServer(PORT);
+Loop *loop = new Loop;
+HttpServer *server = new HttpServer(PORT);
 
 void onSignal(int sig) {
-	//delete server;
+	delete server;
 	delete loop;
 	exit(sig);
 }
@@ -30,7 +30,6 @@ void connectSignals() {
 
 int main() {
 	connectSignals();
-	/*
 	server->get("/ping", [](DoneCallback done) {
 		Job *job = new Job;
 		job->type = PING;
@@ -39,7 +38,6 @@ int main() {
 	});
 
 	server->run();
-	*/
 	loop->run();
 
     return 0;

@@ -1,6 +1,7 @@
 #include "loop.hpp"
 
 std::queue<Job *> Loop::jobs;
+std::mutex Loop::lock;
 uv_loop_t *Loop::loop = uv_default_loop();
 
 Loop::Loop() {
@@ -14,6 +15,7 @@ Loop::~Loop() {
 }
 
 void Loop::enqueue(Job * const job) {
+	std::lock_guard<std::mutex> l(lock);
 	jobs.push(job);
 }
 
@@ -40,6 +42,7 @@ void Loop::run() const {
 }
 
 void Loop::submit(Job *const job) {
+	std::lock_guard<std::mutex> l(lock);
 	job->req.data = (void *) job;
 	uv_queue_work(loop, &job->req, jobRun, jobDone);
 }

@@ -6,6 +6,7 @@
 #include <functional>
 #include <queue>
 #include <iostream>
+#include <mutex>
 
 #include "../json/value.hpp"
 
@@ -41,6 +42,7 @@ private:
 	uv_idle_t idler;
 
 	static std::queue<Job *> jobs;
+	static std::mutex lock;
 };
 
 #endif // LOOP_H
