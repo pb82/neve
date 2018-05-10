@@ -9,9 +9,6 @@
 
 #include "../json/value.hpp"
 
-// Optional callback when a path matches
-typedef std::function<void(std::function<void(JSON::Value *result)>)> MatchCallback;
-
 // Used to store path variables
 typedef std::map<std::string, std::string> PathParams;
 
@@ -23,8 +20,11 @@ typedef std::map<std::string, std::string> PathParams;
 struct Fragment {
 	// Make it copyable for convenience
 	Fragment& operator=(const Fragment& other);
-	std::string value;
+
+	// Value of the fragment and a boolean indicating if it's a
+	// variable name or literal
 	bool isVariable = false;
+	std::string value;
 };
 
 /**
@@ -54,7 +54,7 @@ public:
 	 */
 	void reset();
 private:
-	std::ostringstream ss;
+	std::ostringstream stream;
 	std::vector<Fragment> fragments;
 	int index = 0;
 };
@@ -78,8 +78,6 @@ public:
 	 * @return true if the path matches the pattern
 	 */
 	bool match(std::string method, std::string path, PathParams &&vars = {});
-
-	MatchCallback callback;
 private:
 	std::string method;
 	Pattern mask;

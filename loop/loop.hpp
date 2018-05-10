@@ -2,26 +2,18 @@
 #define LOOP_H
 
 #include <uv.h>
-#include <thread>
-#include <functional>
-#include <queue>
-#include <iostream>
-#include <mutex>
+#include <cstring>
 
-#include "../json/value.hpp"
+#include "../logger/logger.hpp"
 
-enum JobType {
-	NOP		= 1,
-	PING	= 2
-};
+#define PORT 8080
 
-struct Job {
-	JobType type = NOP;
-	JSON::Value payload;
-	JSON::Value result;
-	std::function<void(JSON::Value *result)> callback;
-	uv_work_t req;
-};
+#define RESPONSE                  \
+  "HTTP/1.1 200 OK\r\n"           \
+  "Content-Type: text/plain\r\n"  \
+  "Content-Length: 14\r\n"        \
+  "\r\n"                          \
+  "Hello, World!\n"
 
 class Loop {
 public:
@@ -29,20 +21,19 @@ public:
 	~Loop();
 
 	void run() const;
-
-	static void submit(Job *const job);
-	static void enqueue(Job *const job);
-	static Job *const dequeue();
 private:
-	static void jobRun(uv_work_t *req);
-	static void jobDone(uv_work_t *req, int status);
-	static void loopIdle(uv_idle_t *);
+	void initTcp();
 
-	static uv_loop_t *loop;
-	uv_idle_t idler;
+	static void socketConnect(uv_stream_t *server, int status);
+	static void allocateMemory(uv_handle_t *handle, size_t size, uv_buf_t *buffer);
+	static void readClientData(uv_stream_t *handle, ssize_t size, const uv_buf_t *buffer);
+	static void writeResponse(uv_write_t* write_req, int status);
+	static void close(uv_handle_t *handle, void *);
+	static void cleanup(uv_handle_t *handle);
 
-	static std::queue<Job *> jobs;
-	static std::mutex lock;
+	uv_tcp_t server;
+	sockaddr_in addr;
+	static Logger logger;
 };
 
 #endif // LOOP_H

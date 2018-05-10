@@ -8,7 +8,7 @@ Fragment& Fragment::operator=(const Fragment& other) {
 
 void Pattern::parse(std::string path) {
 	bool isVariable = false;
-	ss.str("");
+	stream.str("");
 
 	while (index < path.length()) {
 		char current = path.at(index++);
@@ -23,20 +23,20 @@ void Pattern::parse(std::string path) {
 			continue;
 		case '/':
 			{
-				if (ss.str().length() > 0)
-					fragments.push_back({ss.str(), isVariable});
+				if (stream.str().length() > 0)
+					fragments.push_back({isVariable, stream.str()});
 				isVariable = false;
-				ss.str("");
+				stream.str("");
 				continue;
 			}
 		default:
-			ss << current;
+			stream << current;
 		}
 	}
 
 	// Store the final fragment
-	if (ss.str().length() > 0) {
-		fragments.push_back({ss.str(), isVariable});
+	if (stream.str().length() > 0) {
+		fragments.push_back({isVariable, stream.str()});
 	}
 }
 

@@ -1,5 +1,5 @@
 BIN = neve
-LIB = -lmicrohttpd -luv
+LIB = -luv
 
 .PHONY: first
 first:
@@ -9,11 +9,11 @@ first:
 check:
 	cat -e -t -v  Makefile
 
-loop/loop.p: loop/loop.cpp loop/loop.hpp
-	$(CXX) -g -c loop/loop.cpp -o loop/loop.o
+http-parser/http_parser.o: http-parser/http_parser.c http-parser/http_parser.h
+	$(MAKE) -C http-parser
 
-http/server.o: http/server.cpp http/server.hpp
-	$(CXX) -g -c http/server.cpp -o http/server.o
+loop/loop.o: loop/loop.cpp loop/loop.hpp
+	$(CXX) -g -c loop/loop.cpp -o loop/loop.o
 
 http/path.o: http/path.cpp http/path.hpp
 	$(CXX) -g -c http/path.cpp -o http/path.o
@@ -30,10 +30,10 @@ json/printer.o: json/printer.cpp json/printer.hpp
 main.o: main.cpp
 	$(CXX) -g -c main.cpp
 
-all: main.o json/printer.o json/parser.o logger/logger.o http/path.o http/server.o \
-		loop/loop.o
+all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
+		loop/loop.o http-parser/http_parser.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
-		http/path.o http/server.o loop/loop.o main.o \
+		http/path.o loop/loop.o http-parser/http_parser.o main.o \
 		-pipe -g -Wall -W -fPIC -o $(BIN)
 
 .PHONY: clean

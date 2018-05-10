@@ -7,16 +7,11 @@
 #include "json/parser.hpp"
 #include "logger/logger.hpp"
 #include "http/path.hpp"
-#include "http/server.hpp"
 #include "loop/loop.hpp"
 
-#define PORT 8080
-
 Loop *loop = new Loop;
-HttpServer *server = new HttpServer(PORT);
 
 void onSignal(int sig) {
-	delete server;
 	delete loop;
 	exit(sig);
 }
@@ -30,15 +25,6 @@ void connectSignals() {
 
 int main() {
 	connectSignals();
-	server->get("/ping", [](DoneCallback done) {
-		Job *job = new Job;
-		job->type = PING;
-		job->callback = done;
-		loop->enqueue(job);
-	});
-
-	server->run();
 	loop->run();
-
     return 0;
 }
