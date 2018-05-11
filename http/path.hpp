@@ -1,7 +1,6 @@
 #ifndef PATH_H
 #define PATH_H
 
-#include <functional>
 #include <sstream>
 #include <string>
 #include <vector>

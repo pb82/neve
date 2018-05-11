@@ -33,8 +33,8 @@ main.o: main.cpp
 all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o http-parser/http_parser.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
-		http/path.o loop/loop.o http-parser/http_parser.o main.o \
-		-pipe -g -Wall -W -fPIC -o $(BIN)
+		http/path.o loop/loop.o http-parser/http_parser.o  \
+		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 .PHONY: clean
 clean:
