@@ -6,6 +6,8 @@
 #include <memory>
 
 #include "path.hpp"
+#include "request.hpp"
+
 
 class HttpRouter {
 public:
@@ -26,7 +28,7 @@ public:
 	 * Job to be run on the queue
 	 * @return An integer representing an Http status code
 	 */
-	int run(int method, std::string &path, void **data);
+	int run(HttpRequest *request, void **data);
 private:		
 	std::vector<std::unique_ptr<Path>> routes;
 };

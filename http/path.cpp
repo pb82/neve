@@ -61,16 +61,16 @@ Path::Path(int method, std::string mask, MatchCallback cb)
 
 Path::~Path() { }
 
-bool Path::match(int method, std::string path, PathParams &vars) {
-	vars.clear();
+bool Path::match(HttpRequest *request) {
+	request->params.clear();
 
 	// Abort early if the methods don't match
-	if (this->method != method) {
+	if (this->method != request->method) {
 		return false;
 	}
 
 	Pattern ext;
-	ext.parse(path);
+	ext.parse(request->url);
 	ext.reset();
 	mask.reset();
 
@@ -83,7 +83,7 @@ bool Path::match(int method, std::string path, PathParams &vars) {
 		}
 
 		if (maskFragment.isVariable) {
-			vars[maskFragment.value] = pathFragment.value;
+			request->params[maskFragment.value] = pathFragment.value;
 			continue;
 		}
 
@@ -95,9 +95,9 @@ bool Path::match(int method, std::string path, PathParams &vars) {
 	return true;
 }
 
-int Path::invokeCallback(PathParams &params, void **data) {
+int Path::invokeCallback(HttpRequest *request, void **data) {
 	if (cb) {
-		return cb(params, data);
+		return cb(request, data);
 	}
 
 	return 400;

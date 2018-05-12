@@ -2,6 +2,7 @@
 #define REQUEST_H
 
 #include <string>
+#include <map>
 #include <uv.h>
 
 #include "../http-parser/http_parser.h"
@@ -25,9 +26,12 @@ struct HttpRequest {
 	uv_tcp_t *client;
 	void *data;
 
-	// Begin parsed data
+	// Path params
+	std::map<std::string, std::string> params;
+
+	// Parsed data
+	int method;
 	std::string url;
-	// End parsed data
 };
 
 #endif // REQUEST_H

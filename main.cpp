@@ -28,9 +28,8 @@ int main() {
 
 	Logger logger;
 
-	loop->router()->get("/ping", [&logger](PathParams& params, void **data) {
-		logger.info("Ping request received");
-
+	loop->router()->get("/ping", [&logger](HttpRequest *req, void **data) {
+		logger.info("Ping request received");		
 		Job *job = new Job;
 		job->jobType = PING;
 		job->result = {{"status", "ok"}};

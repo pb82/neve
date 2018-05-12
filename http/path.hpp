@@ -8,12 +8,10 @@
 #include <map>
 
 #include "../json/value.hpp"
-
-// Used to store path variables
-typedef std::map<std::string, std::string> PathParams;
+#include "request.hpp"
 
 // The callback invoked when a path matches
-typedef std::function<int(PathParams& params, void **data)> MatchCallback;
+typedef std::function<int(HttpRequest *request, void **data)> MatchCallback;
 
 enum HttpMethod {
 	GET		= 1,
@@ -85,7 +83,7 @@ public:
 	 * @param vars (optional) The path params map
 	 * @return true if the path matches the pattern
 	 */
-	bool match(int method, std::string path, PathParams &vars);
+	bool match(HttpRequest *request);
 
 	/**
 	 * @brief invokeCallback Invokes the callback assigned to this pattern. This
@@ -95,7 +93,7 @@ public:
 	 * be put on the job queue.
 	 * @return An integer representing the http status code to return to the client
 	 */
-	int invokeCallback(PathParams& params, void **data);
+	int invokeCallback(HttpRequest *request, void **data);
 private:	
 	int method;
 	Pattern mask;

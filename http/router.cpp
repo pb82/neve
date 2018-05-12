@@ -5,12 +5,10 @@ void HttpRouter::get(const char *route, MatchCallback cb) {
 	routes.push_back(std::unique_ptr<Path>(path));
 }
 
-int HttpRouter::run(int method, std::string& path, void **data) {
-	PathParams vars;
-
+int HttpRouter::run(HttpRequest *request, void **data) {
 	for (const auto& route: routes) {
-		if (route.get()->match(method, path, vars)) {
-			return route.get()->invokeCallback(vars, data);
+		if (route.get()->match(request)) {
+			return route.get()->invokeCallback(request, data);
 		}
 	}
 

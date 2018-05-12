@@ -50,6 +50,7 @@ void Loop::cleanup(uv_handle_t *handle) {
 int Loop::onUrl(http_parser *parser, const char *at, size_t length) {
 	HttpRequest *request = (HttpRequest *) parser->data;
 	request->url = std::string(at, length);
+	request->method = parser->method;
 	return 0;
 }
 
@@ -67,7 +68,7 @@ int Loop::onMessageComplete(http_parser *parser) {
 	Job *job = nullptr;
 
 	// Match the url against the router
-	int code = router->run(parser->method, request->url, (void **) &job);
+	int code = router->run(request, (void **) &job);
 
 	// Success: status ok
 	if (code == HTTP_STATUS_OK) {
