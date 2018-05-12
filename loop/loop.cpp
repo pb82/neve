@@ -3,10 +3,9 @@
 // Begin static initializations
 Logger Loop::logger;
 http_parser_settings Loop::settings;
-HttpRouter *Loop::router = nullptr;
 // End static initializations
 
-Loop::Loop() {
+Loop::Loop(HttpRouter *router) : _router(router) {
 	// Http parser callbacks
 	settings.on_url = onUrl;
 	settings.on_message_complete = onMessageComplete;
@@ -24,19 +23,21 @@ Loop::~Loop() {
 	}, nullptr);
 
 	// Run once again to invoke dangling callbacks
-	run(Loop::router);
+	run();
 
 	// Try closing until it returns success
 	uv_loop_close(uv_default_loop());
 
 	// Auto cleanup the router
-	if (router) delete router;
+	if (_router) delete _router;
 }
 
 void Loop::initTcp() {
 	uv_tcp_init(uv_default_loop(), &server);
-	uv_ip4_addr("0.0.0.0", PORT, &addr);
-	uv_tcp_bind(&server, (const sockaddr *) &addr, 0);
+	server.data = _router;
+
+	uv_ip4_addr("0.0.0.0", PORT, &addr);		
+	uv_tcp_bind(&server, (const sockaddr *) &addr, 0);		
 	uv_listen((uv_stream_t *) &server, SOMAXCONN, serverOnConnect);
 	logger.info("Server listening on port %d", PORT);
 }
@@ -55,24 +56,38 @@ int Loop::onUrl(http_parser *parser, const char *at, size_t length) {
 // Called when parsing a http request is complete
 int Loop::onMessageComplete(http_parser *parser) {
 	HttpRequest *request = (HttpRequest *) parser->data;
+	HttpRouter *router = (HttpRouter *) request->data;
 
 	if (!router) {
 		writeResponse(404, request);
 		return 0;
 	}
 
-	Job *job;
+	// To be initialized by the router callback
+	Job *job = nullptr;
+
+	// Match the url against the router
 	int code = router->run(parser->method, request->url, (void **) &job);
 
-	logger.info("Router run complete: %d", code);
-
-	if (code == 200 && job != nullptr) {
+	// Success: status ok
+	if (code == HTTP_STATUS_OK) {
 		job->httpRequest = request;
 		uv_queue_work(uv_default_loop(), &job->req, actionRun, actionDone);
-	} else {
+	}
+
+	// Error: unknown roue
+	else if (code == HTTP_STATUS_NOT_FOUND) {
+		logger.warn("Not found: %s", request->url.c_str());
 		writeResponse(code, request);
 	}
 
+	// Error: bad request
+	else {
+		logger.warn("Bad request: %s", request->url.c_str());
+		writeResponse(code, request);
+	}
+
+	// Always return 0, otherwise the http parser itself will fail
 	return 0;
 }
 
@@ -107,10 +122,10 @@ void Loop::serverOnConnect(uv_stream_t *s, int status) {
 
 	// Get the client object
 	uv_tcp_t *client = (uv_tcp_t *) malloc(sizeof(uv_tcp_t));
-	uv_tcp_init(uv_default_loop(), client);
+	uv_tcp_init(uv_default_loop(), client);	
 
 	// Set up the request object. Will register itself on the client
-	new HttpRequest(client);
+	new HttpRequest(client, s->data);
 
 	// Accapt the connection
 	if (uv_accept(s, (uv_stream_t *) client) == 0) {
@@ -149,7 +164,7 @@ void Loop::actionDone(uv_work_t *req, int status) {
 
 void Loop::writeResponse(int status, HttpRequest *request) {
 	uv_write_t *write_req = (uv_write_t *) malloc(sizeof(uv_write_t));
-	uv_buf_t buf = uv_buf_init((char *) RESPONSE, sizeof(RESPONSE));
+	uv_buf_t buf = uv_buf_init((char *) RESPONSE, sizeof(RESPONSE));	
 
 	// Send the response to the client
 	uv_write(write_req, (uv_stream_t *) request->client, &buf, 1,
@@ -160,7 +175,10 @@ void Loop::writeResponse(int status, HttpRequest *request) {
 	});
 }
 
-void Loop::run(HttpRouter *router) const {
-	Loop::router = router;
+HttpRouter *const Loop::router() {
+	return this->_router;
+}
+
+void Loop::run() const {
 	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }

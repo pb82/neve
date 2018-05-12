@@ -9,8 +9,7 @@
 #include "http/path.hpp"
 #include "loop/loop.hpp"
 
-Loop *loop = new Loop;
-HttpRouter *router = new HttpRouter;
+Loop *loop = new Loop(new HttpRouter);
 
 void onSignal(int sig) {
 	delete loop;
@@ -29,7 +28,7 @@ int main() {
 
 	Logger logger;
 
-	router->get("/ping", [&logger](PathParams& params, void **data) {
+	loop->router()->get("/ping", [&logger](PathParams& params, void **data) {
 		logger.info("Ping request received");
 
 		Job *job = new Job;
@@ -39,6 +38,6 @@ int main() {
 		return 200;
 	});
 
-	loop->run(router);
+	loop->run();
     return 0;
 }

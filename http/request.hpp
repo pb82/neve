@@ -14,7 +14,7 @@
  * destructor.
  */
 struct HttpRequest {
-	HttpRequest(uv_tcp_t *client) : client(client) {
+	HttpRequest(uv_tcp_t *client, void *data) : client(client), data(data) {
 		http_parser_init(&parser, HTTP_REQUEST);
 		client->data = this;
 		parser.data = this;
@@ -23,6 +23,7 @@ struct HttpRequest {
 	// Every http request needs it's own parser state
 	http_parser parser;
 	uv_tcp_t *client;
+	void *data;
 
 	// Begin parsed data
 	std::string url;

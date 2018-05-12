@@ -45,14 +45,15 @@ struct Job {
 
 class Loop {
 public:
-	Loop();
+	Loop(HttpRouter *router);
 	~Loop();
 
 	/**
 	 * @brief run Start the event loop. This method
 	 * will block
 	 */
-	void run(HttpRouter *router) const;
+	void run() const;
+	HttpRouter *const router();
 private:
 	void initTcp();	
 
@@ -72,11 +73,12 @@ private:
 	// Constructs and sends a Http response
 	static void writeResponse(int status, HttpRequest *request);
 
-	uv_tcp_t server;
-	sockaddr_in addr;
 	static Logger logger;
 	static http_parser_settings settings;
-	static HttpRouter *router;
+
+	uv_tcp_t server;
+	sockaddr_in addr;
+	HttpRouter *_router;
 };
 
 #endif // LOOP_H
