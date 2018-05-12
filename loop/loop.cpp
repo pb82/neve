@@ -3,11 +3,15 @@
 // Begin static initializations
 Logger Loop::logger;
 http_parser_settings Loop::settings;
+HttpRouter *Loop::router = nullptr;
 // End static initializations
 
 Loop::Loop() {
+	// Http parser callbacks
 	settings.on_url = onUrl;
-	settings.on_message_complete = messageComplete;
+	settings.on_message_complete = onMessageComplete;
+
+	// Http server
 	initTcp();
 }
 
@@ -20,10 +24,13 @@ Loop::~Loop() {
 	}, nullptr);
 
 	// Run once again to invoke dangling callbacks
-	run();
+	run(Loop::router);
 
 	// Try closing until it returns success
 	uv_loop_close(uv_default_loop());
+
+	// Auto cleanup the router
+	if (router) delete router;
 }
 
 void Loop::initTcp() {
@@ -39,26 +46,32 @@ void Loop::cleanup(uv_handle_t *handle) {
 	if (handle) free(handle);
 }
 
-void Loop::serverAfterWrite(uv_write_t *write_req, int) {
-	uv_close((uv_handle_t *) write_req->handle, cleanup);
-	free(write_req);
-}
-
 int Loop::onUrl(http_parser *parser, const char *at, size_t length) {
 	HttpRequest *request = (HttpRequest *) parser->data;
-	request->url = (char *) malloc(length);
-	std::memcpy(request->url, at, length);
+	request->url = std::string(at, length);
 	return 0;
 }
 
 // Called when parsing a http request is complete
-int Loop::messageComplete(http_parser *parser) {
+int Loop::onMessageComplete(http_parser *parser) {
 	HttpRequest *request = (HttpRequest *) parser->data;
 
-	// Send response
-	uv_write_t *write_req = (uv_write_t *) malloc(sizeof(uv_write_t));
-	uv_buf_t buf = uv_buf_init((char *) RESPONSE, sizeof(RESPONSE));
-	uv_write(write_req, (uv_stream_t *) request->client, &buf, 1, serverAfterWrite);
+	if (!router) {
+		writeResponse(404, request);
+		return 0;
+	}
+
+	Job *job;
+	int code = router->run(parser->method, request->url, (void **) &job);
+
+	logger.info("Router run complete: %d", code);
+
+	if (code == 200 && job != nullptr) {
+		job->httpRequest = request;
+		uv_queue_work(uv_default_loop(), &job->req, actionRun, actionDone);
+	} else {
+		writeResponse(code, request);
+	}
 
 	return 0;
 }
@@ -114,13 +127,40 @@ void Loop::serverOnConnect(uv_stream_t *s, int status) {
 }
 
 void Loop::actionRun(uv_work_t *req) {
-
+	Job *job = static_cast<Job *>(req->data);
+	switch(job->jobType) {
+	case NOP:
+	case PING:
+		break;
+	default:
+		logger.error("Unknown job type %d", job->jobType);
+		break;
+	}
 }
 
 void Loop::actionDone(uv_work_t *req, int status) {
+	Job *job = static_cast<Job *>(req->data);
+	writeResponse(200, job->httpRequest);
 
+	// Now we can get rid of the job itself (the httprequest will
+	// be cleaned up after writing has ended
+	delete job;
 }
 
-void Loop::run() const {
+void Loop::writeResponse(int status, HttpRequest *request) {
+	uv_write_t *write_req = (uv_write_t *) malloc(sizeof(uv_write_t));
+	uv_buf_t buf = uv_buf_init((char *) RESPONSE, sizeof(RESPONSE));
+
+	// Send the response to the client
+	uv_write(write_req, (uv_stream_t *) request->client, &buf, 1,
+			 // Lambda called to cleanup the resources
+			 [](uv_write_t *write_req, int){
+				uv_close((uv_handle_t *) write_req->handle, cleanup);
+				free(write_req);
+	});
+}
+
+void Loop::run(HttpRouter *router) const {
+	Loop::router = router;
 	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }

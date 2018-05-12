@@ -10,6 +10,7 @@
 #include "loop/loop.hpp"
 
 Loop *loop = new Loop;
+HttpRouter *router = new HttpRouter;
 
 void onSignal(int sig) {
 	delete loop;
@@ -25,6 +26,19 @@ void connectSignals() {
 
 int main() {
 	connectSignals();
-	loop->run();
+
+	Logger logger;
+
+	router->get("/ping", [&logger](PathParams& params, void **data) {
+		logger.info("Ping request received");
+
+		Job *job = new Job;
+		job->jobType = PING;
+		job->result = {{"status", "ok"}};
+		*data = job;
+		return 200;
+	});
+
+	loop->run(router);
     return 0;
 }

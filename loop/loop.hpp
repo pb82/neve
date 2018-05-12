@@ -6,7 +6,10 @@
 #include <thread>
 
 #include "../logger/logger.hpp"
+#include "../json/value.hpp"
 #include "../http-parser/http_parser.h"
+#include "../http/router.hpp"
+#include "../http/request.hpp"
 
 #define PORT 8080
 
@@ -23,35 +26,21 @@ enum JobType {
 };
 
 /**
- * @brief The HttpRequest struct
- * Handles parsing of a http request message and holds all
- * of the parsed data. This struct manages itself, meaning
- * that if will does all the cleanup required in it's
- * destructor.
+ * @brief The Job struct
+ * Represents a job that is queued to be running in a worker
+ * thread, returning its result to the loop thread.
  */
-struct HttpRequest {
-	HttpRequest(uv_tcp_t *client) : client(client) {
-		http_parser_init(&parser, HTTP_REQUEST);
-		client->data = this;
-		parser.data = this;
-	}
-	~HttpRequest() {
-		if (url) free(url);
-	}
-
-	// Every http request needs it's own parser state
-	http_parser parser;
-	uv_tcp_t *client;
-
-	// Begin parsed data
-	char *url;
-	// End parsed data
-};
-
 struct Job {
+	Job() {
+		req.data = this;
+	}
+
 	HttpRequest *httpRequest;
 	JobType jobType;
 	uv_work_t req;
+
+	// Result to be sent as response to the client
+	JSON::Value result;
 };
 
 class Loop {
@@ -63,28 +52,31 @@ public:
 	 * @brief run Start the event loop. This method
 	 * will block
 	 */
-	void run() const;
+	void run(HttpRouter *router) const;
 private:
-	void initTcp();
+	void initTcp();	
 
 	// libuv callbacks
 	static void serverOnConnect(uv_stream_t *server, int status);
 	static void serverOnDataIn(uv_stream_t *handle, ssize_t size, const uv_buf_t *buffer);
-	static void serverAfterWrite(uv_write_t* write_req, int);
 	static void cleanup(uv_handle_t *handle);
 
 	// http-parser callbacks
-	static int messageComplete(http_parser *parser);
+	static int onMessageComplete(http_parser *parser);
 	static int onUrl(http_parser *parser, const char *at, size_t length);
 
 	// work queue callbacks
 	static void actionRun(uv_work_t *req);
 	static void actionDone(uv_work_t *req, int status);
 
+	// Constructs and sends a Http response
+	static void writeResponse(int status, HttpRequest *request);
+
 	uv_tcp_t server;
 	sockaddr_in addr;
 	static Logger logger;
 	static http_parser_settings settings;
+	static HttpRouter *router;
 };
 
 #endif // LOOP_H

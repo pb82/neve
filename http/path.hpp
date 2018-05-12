@@ -1,6 +1,7 @@
 #ifndef PATH_H
 #define PATH_H
 
+#include <functional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -10,6 +11,14 @@
 
 // Used to store path variables
 typedef std::map<std::string, std::string> PathParams;
+
+// The callback invoked when a path matches
+typedef std::function<int(PathParams& params, void **data)> MatchCallback;
+
+enum HttpMethod {
+	GET		= 1,
+	POST	= 3
+};
 
 /**
  * @brief The Fragment struct
@@ -65,7 +74,7 @@ private:
  */
 class Path {
 public:
-	Path(const char *method, std::string mask);
+	Path(int method, std::string mask, MatchCallback cb);
 	~Path();
 
 	/**
@@ -76,10 +85,24 @@ public:
 	 * @param vars (optional) The path params map
 	 * @return true if the path matches the pattern
 	 */
-	bool match(std::string method, std::string path, PathParams &&vars = {});
-private:
-	std::string method;
+	bool match(int method, std::string path, PathParams &vars);
+
+	/**
+	 * @brief invokeCallback Invokes the callback assigned to this pattern. This
+	 * should only be called if match returned true.
+	 * @param params A reference to a map containing the params read from the path
+	 * @param data A pointer to a pointer that can be initialized with the data to
+	 * be put on the job queue.
+	 * @return An integer representing the http status code to return to the client
+	 */
+	int invokeCallback(PathParams& params, void **data);
+private:	
+	int method;
 	Pattern mask;
+
+	// Optional callback to be invoked when that patter matches
+	// agains a provided URL
+	MatchCallback cb;
 };
 
 #endif // PATH_H

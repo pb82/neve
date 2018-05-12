@@ -18,6 +18,9 @@ loop/loop.o: loop/loop.cpp loop/loop.hpp
 http/path.o: http/path.cpp http/path.hpp
 	$(CXX) -g -c http/path.cpp -o http/path.o
 
+http/router.o: http/router.cpp http/router.hpp
+	$(CXX) -g -c http/router.cpp -o http/router.o
+
 logger/logger.o: logger/logger.cpp logger/logger.hpp
 	$(CXX) -g -c logger/logger.cpp -o logger/logger.o
 
@@ -31,9 +34,9 @@ main.o: main.cpp
 	$(CXX) -g -c main.cpp
 
 all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
-		loop/loop.o http-parser/http_parser.o
+		loop/loop.o http-parser/http_parser.o http/router.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
-		http/path.o loop/loop.o http-parser/http_parser.o  \
+		http/path.o http/router.o loop/loop.o http-parser/http_parser.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 .PHONY: clean

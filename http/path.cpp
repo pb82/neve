@@ -54,17 +54,18 @@ void Pattern::reset() {
 	index = 0;
 }
 
-Path::Path(const char *method, std::string mask) : method(method) {
+Path::Path(int method, std::string mask, MatchCallback cb)
+	: method(method), cb(cb) {
 	this->mask.parse(mask);
 }
 
 Path::~Path() { }
 
-bool Path::match(std::string method, std::string path, PathParams &&vars) {
+bool Path::match(int method, std::string path, PathParams &vars) {
 	vars.clear();
 
 	// Abort early if the methods don't match
-	if (this->method.compare(method) != 0) {
+	if (this->method != method) {
 		return false;
 	}
 
@@ -92,4 +93,12 @@ bool Path::match(std::string method, std::string path, PathParams &&vars) {
 	}
 
 	return true;
+}
+
+int Path::invokeCallback(PathParams &params, void **data) {
+	if (cb) {
+		return cb(params, data);
+	}
+
+	return 400;
 }
