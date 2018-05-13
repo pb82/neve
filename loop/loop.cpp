@@ -36,8 +36,8 @@ void Loop::initTcp() {
 	uv_tcp_init(uv_default_loop(), &server);
 	server.data = _router;
 
-	uv_ip4_addr("0.0.0.0", PORT, &addr);		
-	uv_tcp_bind(&server, (const sockaddr *) &addr, 0);		
+	uv_ip4_addr("0.0.0.0", PORT, &addr);
+	uv_tcp_bind(&server, (const sockaddr *) &addr, 0);
 	uv_listen((uv_stream_t *) &server, SOMAXCONN, serverOnConnect);
 	logger.info("Server listening on port %d", PORT);
 }
@@ -72,7 +72,8 @@ int Loop::onMessageComplete(http_parser *parser) {
 	int code = router->run(request, (void **) &job);
 
 	// Success: status ok
-	if (code == HTTP_STATUS_OK) {
+	if (code >= 200 && code < 400) {
+		job->code = code;
 		job->httpRequest = request;
 		uv_queue_work(uv_default_loop(), &job->req, actionRun, actionDone);
 	}
@@ -128,7 +129,7 @@ void Loop::serverOnConnect(uv_stream_t *s, int status) {
 
 	// Get the client object
 	uv_tcp_t *client = (uv_tcp_t *) malloc(sizeof(uv_tcp_t));
-	uv_tcp_init(uv_default_loop(), client);	
+	uv_tcp_init(uv_default_loop(), client);
 
 	// Set up the request object. Will register itself on the client
 	new HttpRequest(client, s->data);
@@ -161,7 +162,7 @@ void Loop::actionRun(uv_work_t *req) {
 
 void Loop::actionDone(uv_work_t *req, int status) {
 	Job *job = static_cast<Job *>(req->data);
-	writeResponse(200, job->httpRequest, job->result);
+	writeResponse(job->code, job->httpRequest, job->result);
 
 	// Now we can get rid of the job itself (the httprequest will
 	// be cleaned up after writing has ended
@@ -172,6 +173,9 @@ void Loop::writeResponse(int status, HttpRequest *request, JSON::Value& payload)
 	uv_write_t *write_req = (uv_write_t *) malloc(sizeof(uv_write_t));
 
 	HttpResponse response(status, payload);
+
+	logger.info("Response: %s", response.toString().c_str());
+
 	uv_buf_t buf = uv_buf_init((char *) response.toString().c_str(),
 							   response.toString().size());
 

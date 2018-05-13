@@ -40,12 +40,11 @@ int main() {
 	loop->router()->get("/ping", [](HttpRequest *req, void **data) {
 		Job *job = new Job;
 		job->jobType = PING;
-		job->result = JSON::Object {{"status", "ok"}};
 		*data = job;
-		return 200;
+		return 204;
 	});
 
 	// Start server
 	loop->run();
-    return 0;
+	return 0;
 }

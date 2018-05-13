@@ -35,6 +35,9 @@ struct Job {
 
 	// Result to be sent as response to the client
 	JSON::Value result;
+
+	// Http status code for the response
+	int code;
 };
 
 class Loop {
@@ -49,7 +52,7 @@ public:
 	void run() const;
 	HttpRouter *const router();
 private:
-	void initTcp();	
+	void initTcp();
 
 	// libuv callbacks
 	static void serverOnConnect(uv_stream_t *server, int status);

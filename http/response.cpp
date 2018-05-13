@@ -6,11 +6,12 @@ HttpResponse::HttpResponse(int code, JSON::Value &payload) {
 	// Construct header
 	ss << HTTP_VERSION << statusText(code) << "\r\n";
 
-	// For now the only response type is JSON
-	ss << "Content-Type: application/json\r\n";
-	ss << "Content-Length: " << json.length() << "\r\n";
-	ss << "\r\n";
-	ss << json;
+	if (code != 204) {
+		ss << "Content-Type: application/json\r\n";
+		ss << "Content-Length: " << json.length() << "\r\n";
+		ss << "\r\n";
+		ss << json;
+	}
 
 	response = ss.str();
 }
