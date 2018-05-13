@@ -133,11 +133,10 @@ namespace JSON {
             std::get<JSON_ARRAY>(value).push_back(val);
         }
 
-		// Read any Lua value into JSON::Value
+		// Import Lua data into a JSON::Value
 		void fromLua(lua_State *L);
 
-		// Write a JSON::Value into a Lua state (object are
-		// written as Lua tables)
+		// Export any JSON::Value to Lua
 		void toLua(lua_State *L);
 
         // Value access (and conversion)
@@ -148,6 +147,8 @@ namespace JSON {
 		void readLuaObject(lua_State *L, JSON::Value &obj, int tableindex);
 		void writeLuaObject(lua_State *L, JSON::Value &val);
 		void writeLuaArray(lua_State *L, JSON::Value &val);
+
+		// Used internally for recursive calls to toLua
 		void toLua(lua_State *L, Value &val);
 
         // The actual type of the value.

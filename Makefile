@@ -36,15 +36,18 @@ json/parser.o: json/parser.cpp json/parser.hpp
 json/printer.o: json/printer.cpp json/printer.hpp
 	$(CXX) -g -c json/printer.cpp -o json/printer.o
 
+config/config.o: config/config.cpp config/config.hpp
+	$(CXX) -g -c config/config.cpp -o config/config.o
+
 main.o: main.cpp
 	$(CXX) -g -c main.cpp
 
 all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
-		json/value.o
+		json/value.o config/config.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
 		http/path.o http/router.o loop/loop.o vendor/http_parser.o \
-		json/value.o \
+		json/value.o config/config.o \
 		http/response.o main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 .PHONY: clean

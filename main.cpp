@@ -1,18 +1,19 @@
-#include <iostream>
-#include <string>
-#include <cstring>
+#include <unistd.h>
 
-#include <microhttpd.h>
 #include "json/printer.hpp"
 #include "json/parser.hpp"
 #include "logger/logger.hpp"
 #include "http/path.hpp"
 #include "loop/loop.hpp"
+#include "config/config.hpp"
 
 Loop *loop = new Loop(new HttpRouter);
+Config *config = new Config;
 
+// Organized cleanup
 void onSignal(int sig) {
 	delete loop;
+	delete config;
 	exit(sig);
 }
 
@@ -26,12 +27,9 @@ void connectSignals() {
 int main() {
 	connectSignals();
 
-	Logger logger;
+	config->load("./config.lua");
 
-	JSON::Value val;
-	val.fromLua(nullptr);
-
-	loop->router()->get("/ping", [&logger](HttpRequest *req, void **data) {
+	loop->router()->get("/ping", [](HttpRequest *req, void **data) {
 		Job *job = new Job;
 		job->jobType = PING;
 		job->result = JSON::Object {{"status", "ok"}};
