@@ -13,7 +13,7 @@ public:
 	HttpResponse(int code, JSON::Value &payload);
 	const std::string& toString() const;
 private:
-	const char* statusText(int code);
+	const char* statusText(int code) const;
 
 	std::string response;
 	std::stringstream ss;

@@ -7,6 +7,10 @@ Logger::Logger(int level) {
 	Logger::level = level;
 }
 
+void Logger::configure(JSON::Value &config) {
+	level = config["level"].as<int>();
+}
+
 void Logger::log(const char *tag, const char *format, ...) {
 	va_list argptr;
 	va_start(argptr, format);

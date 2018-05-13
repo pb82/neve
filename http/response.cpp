@@ -15,7 +15,7 @@ HttpResponse::HttpResponse(int code, JSON::Value &payload) {
 	response = ss.str();
 }
 
-const char* HttpResponse::statusText(int code) {
+const char* HttpResponse::statusText(int code) const {
 	switch(code) {
 	case 200:
 		return "200 OK";
@@ -23,6 +23,8 @@ const char* HttpResponse::statusText(int code) {
 		return "201 Created";
 	case 202:
 		return "202 Accepted";
+	case 204:
+		return "204 No Content";
 	case 400:
 		return "400 Bad Request";
 	case 401:

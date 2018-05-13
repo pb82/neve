@@ -6,6 +6,8 @@
 #include <cstdarg>
 #include <string>
 
+#include "../json/value.hpp"
+
 #define LOG_FN(NAME, TAG, MINLEVEL)					\
 	void NAME(const char* format) {					\
 		if(level < MINLEVEL) return;				\
@@ -35,6 +37,8 @@ class Logger
 public:
 	Logger();
 	Logger(int level);
+
+	static void configure(JSON::Value &config);
 
 	LOG_FN(error,	"Error",	Error)
 	LOG_FN(warn,	"Warn",		Warn)

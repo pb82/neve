@@ -7,8 +7,9 @@
 #include "loop/loop.hpp"
 #include "config/config.hpp"
 
-Loop *loop = new Loop(new HttpRouter);
-Config *config = new Config;
+// Globals
+Loop *loop = nullptr;
+Config *config = nullptr;
 
 // Organized cleanup
 void onSignal(int sig) {
@@ -25,10 +26,17 @@ void connectSignals() {
 }
 
 int main() {
+	// Cleanup handlers
 	connectSignals();
 
-	config->load("./config.lua");
+	loop = new Loop(new HttpRouter);
+	config = new Config;
 
+	// Configuration
+	config->load("./config.lua");
+	Logger::configure(config->get("logger"));
+
+	// Http endpoints
 	loop->router()->get("/ping", [](HttpRequest *req, void **data) {
 		Job *job = new Job;
 		job->jobType = PING;
@@ -37,6 +45,7 @@ int main() {
 		return 200;
 	});
 
+	// Start server
 	loop->run();
     return 0;
 }

@@ -28,7 +28,7 @@ public:
 	 * Job to be run on the queue
 	 * @return An integer representing an Http status code
 	 */
-	int run(HttpRequest *request, void **data);
+	int run(HttpRequest *request, void **data) const;
 private:		
 	std::vector<std::unique_ptr<Path>> routes;
 };

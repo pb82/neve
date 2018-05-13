@@ -13,7 +13,7 @@ namespace JSON {
         virtual ~Printer() { }
 
     protected:
-        void dispatchType(const Value &val, std::ostringstream &out);
+		void dispatchType(const Value &val, std::ostringstream &out);
         void printNumber(const Value &val, std::ostringstream &out);
         void printBoolean(const Value &val, std::ostringstream &out);
         void printString(const Value &val, std::ostringstream &out);
