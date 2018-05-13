@@ -60,7 +60,8 @@ int Loop::onMessageComplete(http_parser *parser) {
 	HttpRouter *router = (HttpRouter *) request->data;
 
 	if (!router) {
-		writeResponse(404, request);
+		JSON::Value val = "Not found";
+		writeResponse(404, request, val);
 		return 0;
 	}
 
@@ -79,13 +80,17 @@ int Loop::onMessageComplete(http_parser *parser) {
 	// Error: unknown roue
 	else if (code == HTTP_STATUS_NOT_FOUND) {
 		logger.warn("Not found: %s", request->url.c_str());
-		writeResponse(code, request);
+
+		JSON::Value val = "Not found";
+		writeResponse(code, request, val);
 	}
 
 	// Error: bad request
 	else {
 		logger.warn("Bad request: %s", request->url.c_str());
-		writeResponse(code, request);
+
+		JSON::Value val = "Bad request";
+		writeResponse(code, request, val);
 	}
 
 	// Always return 0, otherwise the http parser itself will fail
@@ -156,16 +161,19 @@ void Loop::actionRun(uv_work_t *req) {
 
 void Loop::actionDone(uv_work_t *req, int status) {
 	Job *job = static_cast<Job *>(req->data);
-	writeResponse(200, job->httpRequest);
+	writeResponse(200, job->httpRequest, job->result);
 
 	// Now we can get rid of the job itself (the httprequest will
 	// be cleaned up after writing has ended
 	delete job;
 }
 
-void Loop::writeResponse(int status, HttpRequest *request) {
+void Loop::writeResponse(int status, HttpRequest *request, JSON::Value& payload) {
 	uv_write_t *write_req = (uv_write_t *) malloc(sizeof(uv_write_t));
-	uv_buf_t buf = uv_buf_init((char *) RESPONSE, sizeof(RESPONSE));	
+
+	HttpResponse response(status, payload);
+	uv_buf_t buf = uv_buf_init((char *) response.toString().c_str(),
+							   response.toString().size());
 
 	// Send the response to the client
 	uv_write(write_req, (uv_stream_t *) request->client, &buf, 1,

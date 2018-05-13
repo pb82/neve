@@ -7,18 +7,12 @@
 
 #include "../logger/logger.hpp"
 #include "../json/value.hpp"
-#include "../http-parser/http_parser.h"
+#include "../vendor/http_parser.h"
 #include "../http/router.hpp"
 #include "../http/request.hpp"
+#include "../http/response.hpp"
 
 #define PORT 8080
-
-#define RESPONSE					\
-	"HTTP/1.1 200 OK\r\n"           \
-	"Content-Type: text/plain\r\n"  \
-	"Content-Length: 14\r\n"        \
-	"\r\n"                          \
-	"Hello, World!\n"
 
 enum JobType {
 	NOP =	1,
@@ -71,7 +65,7 @@ private:
 	static void actionDone(uv_work_t *req, int status);
 
 	// Constructs and sends a Http response
-	static void writeResponse(int status, HttpRequest *request);
+	static void writeResponse(int status, HttpRequest *request, JSON::Value &payload);
 
 	static Logger logger;
 	static http_parser_settings settings;

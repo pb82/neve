@@ -5,7 +5,7 @@
 #include <map>
 #include <uv.h>
 
-#include "../http-parser/http_parser.h"
+#include "../vendor/http_parser.h"
 
 /**
  * @brief The HttpRequest struct

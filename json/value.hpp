@@ -8,7 +8,7 @@
 #include <cmath>
 #include <map>
 
-#include <lua.h>
+#include <lua.hpp>
 
 namespace JSON {
 	enum JsonType {
@@ -117,7 +117,7 @@ namespace JSON {
         }
 
         // Array access and manipulation
-        Value& operator[](int index) {
+        Value& operator[](int index) {			
             return std::get<JSON_ARRAY>(value)[index];
         }
 
@@ -133,10 +133,23 @@ namespace JSON {
             std::get<JSON_ARRAY>(value).push_back(val);
         }
 
+		// Read any Lua value into JSON::Value
+		void fromLua(lua_State *L);
+
+		// Write a JSON::Value into a Lua state (object are
+		// written as Lua tables)
+		void toLua(lua_State *L);
+
         // Value access (and conversion)
 		template <typename T> T as() const;
 		template <typename T> T& asMutable();
     private:
+		// Lua conversion functions
+		void readLuaObject(lua_State *L, JSON::Value &obj, int tableindex);
+		void writeLuaObject(lua_State *L, JSON::Value &val);
+		void writeLuaArray(lua_State *L, JSON::Value &val);
+		void toLua(lua_State *L, Value &val);
+
         // The actual type of the value.
         JsonType type;
         

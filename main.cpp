@@ -28,11 +28,13 @@ int main() {
 
 	Logger logger;
 
+	JSON::Value val;
+	val.fromLua(nullptr);
+
 	loop->router()->get("/ping", [&logger](HttpRequest *req, void **data) {
-		logger.info("Ping request received");		
 		Job *job = new Job;
 		job->jobType = PING;
-		job->result = {{"status", "ok"}};
+		job->result = JSON::Object {{"status", "ok"}};
 		*data = job;
 		return 200;
 	});
