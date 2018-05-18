@@ -29,11 +29,12 @@ int main() {
 	// Cleanup handlers
 	connectSignals();
 
-	loop = new Loop(new HttpRouter);
 	config = new Config;
+	config->load("./config.lua");
+
+	loop = new Loop(config->get("server"), new HttpRouter);
 
 	// Configuration
-	config->load("./config.lua");
 	Logger::configure(config->get("logger"));
 
 	// Http endpoints

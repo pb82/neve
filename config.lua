@@ -7,6 +7,11 @@ local LogLevel = {
 	Debug = 5
 }
 
+Config "server" {
+	ipaddress="0.0.0.0",
+	port=8080
+}
+
 Config "logger" {
 	level = LogLevel.Info
 }

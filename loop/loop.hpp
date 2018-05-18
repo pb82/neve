@@ -12,8 +12,6 @@
 #include "../http/request.hpp"
 #include "../http/response.hpp"
 
-#define PORT 8080
-
 enum JobType {
 	NOP =	1,
 	PING =	2
@@ -42,7 +40,7 @@ struct Job {
 
 class Loop {
 public:
-	Loop(HttpRouter *router);
+	Loop(JSON::Value &config, HttpRouter *router);
 	~Loop();
 
 	/**
@@ -52,7 +50,7 @@ public:
 	void run() const;
 	HttpRouter *const router();
 private:
-	void initTcp();
+	void initTcp(int port, const char *ipaddress);
 
 	// libuv callbacks
 	static void serverOnConnect(uv_stream_t *server, int status);

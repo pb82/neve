@@ -9,3 +9,6 @@ neve.creator*
 
 # Valgrind
 vgcore*
+
+# Node
+node_modules
