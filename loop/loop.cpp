@@ -8,6 +8,7 @@ http_parser_settings Loop::settings;
 Loop::Loop(JSON::Value config, HttpRouter *router) : _router(router) {
 	// Http parser callbacks
 	settings.on_url = onUrl;
+	// settings.on_body = onBody;
 	settings.on_message_complete = onMessageComplete;
 
 	// config params
@@ -47,12 +48,27 @@ Loop::~Loop() {
 }
 
 void Loop::initTcp(int port, const char *ipaddress) {
-	uv_tcp_init(uv_default_loop(), &server);
+	int status = uv_tcp_init(uv_default_loop(), &server);
+	if (status) {
+		logger.error("Error in uv_tcp_init: %d", status);
+		return;
+	}
+
 	server.data = _router;
 
 	uv_ip4_addr(ipaddress, port, &addr);
-	uv_tcp_bind(&server, (const sockaddr *) &addr, 0);
-	uv_listen((uv_stream_t *) &server, SOMAXCONN, serverOnConnect);
+	status = uv_tcp_bind(&server, (const sockaddr *) &addr, 0);
+	if (status) {
+		logger.error("Error in uv_tcp_bind: %d", status);
+		return;
+	}
+
+	status = uv_listen((uv_stream_t *) &server, SOMAXCONN, serverOnConnect);
+	if (status) {
+		logger.error("Error in uv_listen: %d", status);
+		return;
+	}
+
 	logger.info("Server listening on %s:%d", ipaddress, port);
 }
 
@@ -65,6 +81,12 @@ int Loop::onUrl(http_parser *parser, const char *at, size_t length) {
 	HttpRequest *request = (HttpRequest *) parser->data;
 	request->url = std::string(at, length);
 	request->method = parser->method;
+	return 0;
+}
+
+int Loop::onBody(http_parser *parser, const char *at, size_t length) {
+	HttpRequest *request = (HttpRequest *) parser->data;
+	request->body= parser->method;
 	return 0;
 }
 
@@ -86,7 +108,7 @@ int Loop::onMessageComplete(http_parser *parser) {
 	int code = router->run(request, (void **) &job);
 
 	// Success: status ok
-	if (code >= 200 && code < 400) {
+	if (job && code >= 200 && code < 400) {
 		job->code = code;
 		job->httpRequest = request;
 		uv_queue_work(uv_default_loop(), &job->req, actionRun, actionDone);
@@ -101,10 +123,16 @@ int Loop::onMessageComplete(http_parser *parser) {
 	}
 
 	// Error: bad request
-	else {
+	else if (code == HTTP_STATUS_BAD_REQUEST) {
 		logger.warn("Bad request: %s", request->url.c_str());
 
 		JSON::Value val = "Bad request";
+		writeResponse(code, request, val);
+	}
+
+	// Error: bad request
+	else {
+		JSON::Value val = "OK";
 		writeResponse(code, request, val);
 	}
 
@@ -187,8 +215,6 @@ void Loop::writeResponse(int status, HttpRequest *request, JSON::Value& payload)
 	uv_write_t *write_req = (uv_write_t *) malloc(sizeof(uv_write_t));
 
 	HttpResponse response(status, payload);
-
-	logger.info("Response: %s", response.toString().c_str());
 
 	uv_buf_t buf = uv_buf_init((char *) response.toString().c_str(),
 							   response.toString().size());

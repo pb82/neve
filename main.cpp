@@ -36,13 +36,19 @@ int main() {
 
 	// Configuration
 	Logger::configure(config->get("logger"));
+	Logger l;
 
 	// Http endpoints
 	loop->router()->get("/ping", [](HttpRequest *req, void **data) {
 		Job *job = new Job;
 		job->jobType = PING;
 		*data = job;
-		return 204;
+		return 200;
+	});
+
+	loop->router()->post("/actions", [&l](HttpRequest *req, void **) {
+		l.info("Body: %s", req->body.c_str());
+		return 200;
 	});
 
 	// Start server

@@ -13,11 +13,19 @@ class HttpRouter {
 public:
 	/**
 	 * @brief get Register a GET request handler
-	 * @param route The path patterh to register the handler for
+	 * @param route The path pattern to register the handler for
 	 * @param cb The callback invoked when the pattern matches the
 	 * current path
 	 */
 	void get(const char *route, MatchCallback cb);
+
+	/**
+	 * @brief get Register a POST request handler
+	 * @param route The path pattern to register the handler for
+	 * @param cb The callback invoked when the pattern matches the
+	 * current path
+	 */
+	void post(const char *route, MatchCallback cb);
 
 	/**
 	 * @brief run Run the router and try to match the given path agains
@@ -29,7 +37,8 @@ public:
 	 * @return An integer representing an Http status code
 	 */
 	int run(HttpRequest *request, void **data) const;
-private:		
+private:
+	void registerHandler(int method, const char *route, MatchCallback cb);
 	std::vector<std::unique_ptr<Path>> routes;
 };
 

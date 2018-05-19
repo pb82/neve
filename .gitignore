@@ -12,3 +12,7 @@ vgcore*
 
 # Node
 node_modules
+cli/dist
+
+# Idea
+.idea

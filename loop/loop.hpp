@@ -40,7 +40,7 @@ struct Job {
 
 class Loop {
 public:
-	Loop(JSON::Value &config, HttpRouter *router);
+	Loop(JSON::Value config, HttpRouter *router);
 	~Loop();
 
 	/**
@@ -60,6 +60,7 @@ private:
 	// http-parser callbacks
 	static int onMessageComplete(http_parser *parser);
 	static int onUrl(http_parser *parser, const char *at, size_t length);
+	static int onBody(http_parser *parser, const char *at, size_t length);
 
 	// work queue callbacks
 	static void actionRun(uv_work_t *req);

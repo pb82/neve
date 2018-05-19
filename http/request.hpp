@@ -32,6 +32,7 @@ struct HttpRequest {
 	// Parsed data
 	int method;
 	std::string url;
+	std::string body;
 };
 
 #endif // REQUEST_H

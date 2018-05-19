@@ -1,7 +1,15 @@
 #include "router.hpp"
 
 void HttpRouter::get(const char *route, MatchCallback cb) {
-	Path *path = new Path(GET, route, cb);
+	registerHandler(GET, route, cb);
+}
+
+void HttpRouter::post(const char *route, MatchCallback cb) {
+	registerHandler(POST, route, cb);
+}
+
+void HttpRouter::registerHandler(int method, const char *route, MatchCallback cb) {
+	Path *path = new Path(method, route, cb);
 	routes.push_back(std::unique_ptr<Path>(path));
 }
 

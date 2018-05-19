@@ -5,13 +5,10 @@ HttpResponse::HttpResponse(int code, JSON::Value &payload) {
 
 	// Construct header
 	ss << HTTP_VERSION << statusText(code) << "\r\n";
-
-	if (code != 204) {
-		ss << "Content-Type: application/json\r\n";
-		ss << "Content-Length: " << json.length() << "\r\n";
-		ss << "\r\n";
-		ss << json;
-	}
+	ss << "Content-Type: application/json\r\n";
+	ss << "Content-Length: " << json.length() << "\r\n";
+	ss << "\r\n";
+	ss << json;
 
 	response = ss.str();
 }
@@ -24,8 +21,6 @@ const char* HttpResponse::statusText(int code) const {
 		return "201 Created";
 	case 202:
 		return "202 Accepted";
-	case 204:
-		return "204 No Content";
 	case 400:
 		return "400 Bad Request";
 	case 401:
