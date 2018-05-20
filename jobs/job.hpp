@@ -6,6 +6,11 @@
 #include "../http/request.hpp"
 #include "../json/value.hpp"
 
+/**
+ * @brief The Job class
+ * Base class for all jobs that are executed on one of the
+ * worker threads
+ */
 class Job {
 public:
 	Job() {
@@ -13,6 +18,12 @@ public:
 	}
 
 	virtual ~Job() { }
+
+	/**
+	 * @brief execute Run the job
+	 * Must be implemented by classes inheriging from this class.
+	 * Shoud set code and result
+	 */
 	virtual void execute() = 0;
 
 	int getCode() const {

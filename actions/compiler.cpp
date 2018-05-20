@@ -17,11 +17,12 @@ bool Compiler::compile() {
 	// Check if the chunk was compiled without errors
 	if ((status = luaL_loadstring(L, decoded.c_str())) != LUA_OK)
 	{
-		this->error = lua_tostring(L, -1);
+		error = lua_tostring(L, -1);
 		logger.error(error.c_str());
 		return false;
 	}
 
+	// Write the dumped bytecode to a std::string
 	lua_dump(L, writeBytecode, &decoded, true);
 	lua_close(L);
 	return true;

@@ -46,6 +46,16 @@ public:
 	}
 
 private:
+	/**
+	 * @brief writeBytecode Write bytecode to string
+	 * Executed repeatedly by lua_dump to write chunks of bytecode to
+	 * the passed buffer
+	 * @param L Lua state
+	 * @param p Pointer to the current chunk
+	 * @param sz Size of the current chunk
+	 * @param ud Pointer to user data
+	 * @return Must return 0 to indicate success
+	 */
 	static int writeBytecode(lua_State *L, const void *p, size_t sz, void *ud);
 
 	std::string encoded;
