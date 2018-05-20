@@ -45,6 +45,20 @@ bool Create::parse(std::string *error) {
 	return true;
 }
 
+void Create::store(std::string &bytecode) const {
+	Action *action = new Action;
+
+	action->size = bytecode.size();
+	action->bytecode = bytecode;
+	action->timeout = timeout;
+	action->memory = memory;
+	action->name = name;
+
+	// The cache is supposed to sync to a persistent
+	// backend at some point
+	Cache::i().store(action);
+}
+
 void Create::execute() {
 	// Try to parse the request payload
 	std::string error;
@@ -62,6 +76,7 @@ void Create::execute() {
 	result = compiler.decode();
 	if (result) {
 		result = compiler.compile();
+		store(compiler.getBytecode());
 	}
 
 	if (result) {

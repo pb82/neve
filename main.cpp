@@ -7,7 +7,9 @@
 #include "loop/loop.hpp"
 #include "jobs/ping.hpp"
 #include "jobs/create.hpp"
+#include "jobs/list.hpp"
 #include "config/config.hpp"
+#include "persistence/cache.hpp"
 
 // Globals
 Loop *loop = nullptr;
@@ -38,7 +40,6 @@ int main() {
 
 	// Configuration
 	Logger::configure(config->get("logger"));
-	Logger l;
 
 	// Http endpoints
 	loop->router()->get("/ping", [](HttpRequest *req, void **data) {
@@ -46,8 +47,13 @@ int main() {
 		return true;
 	});
 
-	loop->router()->post("/action", [&l](HttpRequest *req, void **data) {
+	loop->router()->post("/action", [](HttpRequest *req, void **data) {
 		*data = new Create;
+		return true;
+	});
+
+	loop->router()->get("/action", [](HttpRequest *req, void **data) {
+		*data = new List;
 		return true;
 	});
 

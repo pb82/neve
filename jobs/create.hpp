@@ -5,6 +5,7 @@
 #include "../json/parser.hpp"
 #include "../json/printer.hpp"
 #include "../actions/compiler.hpp"
+#include "../persistence/cache.hpp"
 
 /**
  * @brief The Create class
@@ -25,6 +26,8 @@ private:
 	 * @return true if the payload is valid
 	 */
 	bool parse(std::string *error);
+
+	void store(std::string &bytecode) const;
 
 	JSON::Parser parser;
 	JSON::Value payload;
