@@ -30,6 +30,7 @@ public:
 
 	void store(Action *action);
 	void list(JSON::Array &actions);
+	void remove(std::string &name);
 
 private:
 	Cache();

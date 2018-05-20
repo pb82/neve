@@ -7,8 +7,7 @@ void Value::toLua(lua_State *L) {
 }
 
 void Value::toLua(lua_State *L, JSON::Value &val) {
-	switch(getType())
-	{
+	switch(getType()) {
 	case JSON::JSON_NULL:
 		lua_pushnil(L);
 		break;
@@ -35,8 +34,7 @@ void Value::toLua(lua_State *L, JSON::Value &val) {
 void Value::fromLua(lua_State *L) {
 	// Get the type of the item on top of the stack
 	int type = lua_type(L, -1);
-	switch(type)
-	{
+	switch(type) {
 	case LUA_TTABLE:
 		// -2 because readObject needs to push a nil value
 		readLuaObject(L, *this, -2);
@@ -63,22 +61,18 @@ void Value::fromLua(lua_State *L) {
 
 void Value::readLuaObject(lua_State *L, Value &obj, int tableindex) {
 	lua_pushnil(L);
-	while(lua_next(L, tableindex))
-	{
+	while(lua_next(L, tableindex)) {
 		std::string key;
-		if (lua_isnumber(L, -2))
-		{
+
+		if (lua_isnumber(L, -2)) {
 			key = toString(lua_tonumber(L, -2));
-		} else if (lua_isstring(L, -2))
-		{
+		} else if (lua_isstring(L, -2)) {
 			key = lua_tostring(L, -2);
-		} else
-		{
+		} else {
 			luaL_error(L, "Key must be a string or a number");
 		}
 
-		switch(lua_type(L, -1))
-		{
+		switch(lua_type(L, -1)) {
 		case LUA_TNUMBER:
 			obj[key] = lua_tonumber(L, -1);
 			break;
@@ -109,8 +103,7 @@ void Value::writeLuaArray(lua_State *L, Value &val) {
 
 	lua_createtable(L, arr.size(), 0);
 
-	for (unsigned int i = 1; i < arr.size() + 1; i++)
-	{
+	for (unsigned int i = 1; i < arr.size() + 1; i++) {
 		lua_pushnumber(L, i);
 		toLua(L, arr[i - 1]);
 		lua_settable(L, -3);
@@ -122,8 +115,7 @@ void Value::writeLuaObject(lua_State *L, Value &val) {
 
 	lua_createtable(L, 0, obj.size());
 
-	for (auto const& pair : obj)
-	{
+	for (auto const& pair : obj) {
 		std::string key = pair.first;
 		JSON::Value value = pair.second;
 

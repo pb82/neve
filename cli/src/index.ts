@@ -9,6 +9,7 @@ import ping from "./commands/ping";
 import connect from "./commands/connect";
 import createAction from "./commands/create-action";
 import {AxiosError} from "axios";
+import listActions from "./commands/list-actions";
 
 function logSuccess(result: any) {
     info("Operation successful");
@@ -75,6 +76,15 @@ function main() {
             createAction(name, config(program))
                 .then(logSuccess)
                 .catch(logError);
+        });
+
+    program
+        .command("list-actions")
+        .description("List available actions")
+        .action(() => {
+            listActions(config(program))
+                .then(logSuccess)
+                .catch(logError)
         });
 
     program.parse(process.argv);

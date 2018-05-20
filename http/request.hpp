@@ -21,7 +21,7 @@ struct HttpRequest {
 		parser.data = this;
 	}
 
-	// Every http request needs it's own parser state
+	// Every http request needs its own parser state
 	http_parser parser;
 	uv_tcp_t *client;
 	void *data;

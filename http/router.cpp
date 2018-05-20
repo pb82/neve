@@ -14,6 +14,7 @@ void HttpRouter::registerHandler(int method, const char *route, MatchCallback cb
 }
 
 bool HttpRouter::run(HttpRequest *request, void **data) const {
+	// Check every route to find one that matches
 	for (const auto& route: routes) {
 		if (route.get()->match(request)) {
 			return route.get()->invokeCallback(request, data);

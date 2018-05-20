@@ -16,6 +16,11 @@ void Cache::store(Action *action) {
 	logger.info("Action %s stored in cache", action->name.c_str());
 }
 
+void Cache::remove(std::string &name) {
+	std::lock_guard<std::mutex> guard(lock);
+	cached.erase(name);
+}
+
 void Cache::list(JSON::Array &actions) {
 	Actions::iterator iter;
 	for (iter = cached.begin(); iter != cached.end(); iter++) {

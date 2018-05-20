@@ -12,6 +12,7 @@ class HttpResponse {
 public:
 	HttpResponse(int code, JSON::Value &payload);
 	std::string& toString();
+
 private:
 	const char* statusText(int code) const;
 
