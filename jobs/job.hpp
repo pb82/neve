@@ -31,7 +31,7 @@ public:
 		return &workRequest;
 	}
 
-	const JSON::Value& getResult() {
+	JSON::Value& getResult() {
 		return result;
 	}
 

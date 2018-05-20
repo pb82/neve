@@ -39,19 +39,25 @@ json/printer.o: json/printer.cpp json/printer.hpp
 config/config.o: config/config.cpp config/config.hpp
 	$(CXX) -g -c config/config.cpp -o config/config.o
 
+actions/compiler.o: actions/compiler.cpp actions/compiler.hpp
+	$(CXX) -g -c actions/compiler.cpp -o actions/compiler.o
+
 jobs/ping.o: jobs/ping.cpp jobs/ping.cpp
 	$(CXX) -g -c jobs/ping.cpp -o jobs/ping.o
+
+jobs/create.o: jobs/create.cpp jobs/create.cpp
+	$(CXX) -g -c jobs/create.cpp -o jobs/create.o
 
 main.o: main.cpp
 	$(CXX) -g -c main.cpp
 
 all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
-		json/value.o jobs/ping.o config/config.o
+		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
-		http/path.o http/router.o loop/loop.o vendor/http_parser.o \
-		json/value.o jobs/ping.o config/config.o \
-		http/response.o main.o -pipe -g -Wall -W -fPIC -o $(BIN)
+		http/path.o http/router.o http/response.o loop/loop.o vendor/http_parser.o \
+		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
+		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 .PHONY: clean
 clean:

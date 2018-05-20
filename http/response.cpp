@@ -34,6 +34,6 @@ const char* HttpResponse::statusText(int code) const {
 	}
 }
 
-const std::string& HttpResponse::toString() const {
+std::string& HttpResponse::toString() {
 	return response;
 }

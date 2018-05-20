@@ -6,6 +6,7 @@
 #include "http/path.hpp"
 #include "loop/loop.hpp"
 #include "jobs/ping.hpp"
+#include "jobs/create.hpp"
 #include "config/config.hpp"
 
 // Globals
@@ -45,9 +46,9 @@ int main() {
 		return true;
 	});
 
-	loop->router()->post("/action", [&l](HttpRequest *req, void **) {
-		l.info("Body: %s", req->body.c_str());
-		return false;
+	loop->router()->post("/action", [&l](HttpRequest *req, void **data) {
+		*data = new Create;
+		return true;
 	});
 
 	// Start server

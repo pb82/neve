@@ -8,13 +8,20 @@ import * as program from "commander";
 import ping from "./commands/ping";
 import connect from "./commands/connect";
 import createAction from "./commands/create-action";
+import {AxiosError} from "axios";
 
-function logSuccess() {
+function logSuccess(result: any) {
     info("Operation successful");
+    if (result.data) {
+        info(result.data);
+    }
 }
 
-function logError(err: Error) {
+function logError(err: AxiosError) {
     error(err.toString());
+    if (err.response && err.response.data) {
+        error(err.response.data);
+    }
 }
 
 function tryReadConfig() : Config {
