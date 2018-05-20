@@ -11,7 +11,7 @@
 #include "request.hpp"
 
 // The callback invoked when a path matches
-typedef std::function<int(HttpRequest *request, void **data)> MatchCallback;
+typedef std::function<bool(HttpRequest *request, void **data)> MatchCallback;
 
 enum HttpMethod {
 	GET		= 1,
@@ -94,7 +94,7 @@ public:
 	 * @return An integer representing the http status code to return to the client
 	 */
 	int invokeCallback(HttpRequest *request, void **data);
-private:	
+private:
 	int method;
 	Pattern mask;
 

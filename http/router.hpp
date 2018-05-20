@@ -34,9 +34,9 @@ public:
 	 * @param path URL
 	 * @param data A pointer to a pointer that can be initialized with a
 	 * Job to be run on the queue
-	 * @return An integer representing an Http status code
+	 * @return true if a matching route was found and run
 	 */
-	int run(HttpRequest *request, void **data) const;
+	bool run(HttpRequest *request, void **data) const;
 private:
 	void registerHandler(int method, const char *route, MatchCallback cb);
 	std::vector<std::unique_ptr<Path>> routes;

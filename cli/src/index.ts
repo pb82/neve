@@ -1,11 +1,21 @@
-import {error, info} from "./logger";
-import {match} from "missmatch";
-import connect from "./commands/connect";
 import {readFileSync, statSync} from "fs";
 import {join} from "path";
 import {Config, CONFIG_FILE_NAME} from "./config";
 import {homedir} from "os";
+import {CommanderStatic} from "commander";
+import {error, info} from "./logger";
+import * as program from "commander";
 import ping from "./commands/ping";
+import connect from "./commands/connect";
+import createAction from "./commands/create-action";
+
+function logSuccess() {
+    info("Operation successful");
+}
+
+function logError(err: Error) {
+    error(err.toString());
+}
 
 function tryReadConfig() : Config {
     const configPath = join(homedir(), CONFIG_FILE_NAME);
@@ -22,38 +32,45 @@ function tryReadConfig() : Config {
     }
 }
 
-function removeOptions(args: Array<string>): Array<string> {
-    return args.filter(arg => {
-        return !(arg.startsWith("-") || arg.startsWith("--"));
-    });
-}
-
 function main() {
-    const config: Config = tryReadConfig();
-    const args = removeOptions(process.argv);
+    const config = (program: CommanderStatic) => {
+        const c: Config = tryReadConfig();
+        if (!c) throw new Error("Please connect to server first");
+        return {...c, ...program};
+    };
 
-    // Commands that can run without the server being configured
-    if(!match(args, {
-        'a(_,_,s("connect"),s@url)': ({url} : {url: string}) => connect(url),
-        '_': true
-    }, {arrow: true})) {
-        return;
-    }
+    program
+        .version("CLI version: " + require("../package.json").version);
 
-    if (!config) {
-        error("Not connected. Please run the `connect <url>` command first");
-        return;
-    }
+    program
+        .option("-f --file <file>", "File to upload");
 
-    // Commands that require configuration
-    match(args, {
-        'a(_,_,s("ping"))': () => { return ping(config.url); },
-        '_': () => { throw new Error("Unrecognized command") }
-    }, {arrow: true}).then(() => {
-        info("Command successful");
-    }).catch((err: any) => {
-        error(err);
-    });
+    program
+        .command("ping")
+        .description("Check server connectivity")
+        .action(() => {
+            ping(config(program).url)
+                .then(logSuccess)
+                .catch(logError);
+        });
+
+    program
+        .command("connect <url>")
+        .description("Connect to server")
+        .action(url => {
+            connect(url);
+        });
+
+    program
+        .command("create-action <name>")
+        .description("Create a new action")
+        .action(name => {
+            createAction(name, config(program))
+                .then(logSuccess)
+                .catch(logError);
+        });
+
+    program.parse(process.argv);
 }
 
 try {

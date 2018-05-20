@@ -5,6 +5,7 @@
 #include "logger/logger.hpp"
 #include "http/path.hpp"
 #include "loop/loop.hpp"
+#include "jobs/ping.hpp"
 #include "config/config.hpp"
 
 // Globals
@@ -40,15 +41,13 @@ int main() {
 
 	// Http endpoints
 	loop->router()->get("/ping", [](HttpRequest *req, void **data) {
-		Job *job = new Job;
-		job->jobType = PING;
-		*data = job;
-		return 200;
+		*data = new Ping;
+		return true;
 	});
 
-	loop->router()->post("/actions", [&l](HttpRequest *req, void **) {
+	loop->router()->post("/action", [&l](HttpRequest *req, void **) {
 		l.info("Body: %s", req->body.c_str());
-		return 200;
+		return false;
 	});
 
 	// Start server

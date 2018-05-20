@@ -11,32 +11,7 @@
 #include "../http/router.hpp"
 #include "../http/request.hpp"
 #include "../http/response.hpp"
-
-enum JobType {
-	NOP =	1,
-	PING =	2
-};
-
-/**
- * @brief The Job struct
- * Represents a job that is queued to be running in a worker
- * thread, returning its result to the loop thread.
- */
-struct Job {
-	Job() {
-		req.data = this;
-	}
-
-	HttpRequest *httpRequest;
-	JobType jobType;
-	uv_work_t req;
-
-	// Result to be sent as response to the client
-	JSON::Value result;
-
-	// Http status code for the response
-	int code;
-};
+#include "../jobs/job.hpp"
 
 class Loop {
 public:

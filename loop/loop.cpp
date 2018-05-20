@@ -8,7 +8,7 @@ http_parser_settings Loop::settings;
 Loop::Loop(JSON::Value config, HttpRouter *router) : _router(router) {
 	// Http parser callbacks
 	settings.on_url = onUrl;
-	// settings.on_body = onBody;
+	settings.on_body = onBody;
 	settings.on_message_complete = onMessageComplete;
 
 	// config params
@@ -84,9 +84,10 @@ int Loop::onUrl(http_parser *parser, const char *at, size_t length) {
 	return 0;
 }
 
+// Read POST request body
 int Loop::onBody(http_parser *parser, const char *at, size_t length) {
 	HttpRequest *request = (HttpRequest *) parser->data;
-	request->body= parser->method;
+	request->body = std::string(at, length);
 	return 0;
 }
 
@@ -105,35 +106,16 @@ int Loop::onMessageComplete(http_parser *parser) {
 	Job *job = nullptr;
 
 	// Match the url against the router
-	int code = router->run(request, (void **) &job);
-
-	// Success: status ok
-	if (job && code >= 200 && code < 400) {
-		job->code = code;
-		job->httpRequest = request;
-		uv_queue_work(uv_default_loop(), &job->req, actionRun, actionDone);
+	if(router->run(request, (void **) &job)) {
+		job->setHttpRequest(request);
+		uv_queue_work(uv_default_loop(), job->getWorkRequest(), actionRun, actionDone);
 	}
 
-	// Error: unknown roue
-	else if (code == HTTP_STATUS_NOT_FOUND) {
-		logger.warn("Not found: %s", request->url.c_str());
-
-		JSON::Value val = "Not found";
-		writeResponse(code, request, val);
-	}
-
-	// Error: bad request
-	else if (code == HTTP_STATUS_BAD_REQUEST) {
-		logger.warn("Bad request: %s", request->url.c_str());
-
-		JSON::Value val = "Bad request";
-		writeResponse(code, request, val);
-	}
-
-	// Error: bad request
+	// Router returned false, so either the route was not found or the callback
+	// retured false. Either way we respond with 404
 	else {
-		JSON::Value val = "OK";
-		writeResponse(code, request, val);
+		JSON::Value val = "Not found";
+		writeResponse(404, request, val);
 	}
 
 	// Always return 0, otherwise the http parser itself will fail
@@ -192,19 +174,15 @@ void Loop::serverOnConnect(uv_stream_t *s, int status) {
 
 void Loop::actionRun(uv_work_t *req) {
 	Job *job = static_cast<Job *>(req->data);
-	switch(job->jobType) {
-	case NOP:
-	case PING:
-		break;
-	default:
-		logger.error("Unknown job type %d", job->jobType);
-		break;
-	}
+
+	// Execute will set the 'code' and 'result' properties of
+	// the job
+	job->execute();
 }
 
 void Loop::actionDone(uv_work_t *req, int status) {
 	Job *job = static_cast<Job *>(req->data);
-	writeResponse(job->code, job->httpRequest, job->result);
+	writeResponse(job->getCode(), job->getHttpRequest(), job->getResult());
 
 	// Now we can get rid of the job itself (the httprequest will
 	// be cleaned up after writing has ended
