@@ -21,6 +21,14 @@ void Cache::remove(std::string &name) {
 	cached.erase(name);
 }
 
+Action *Cache::read(std::string &name) {
+	if (cached.find(name) == cached.end()) {
+		return nullptr;
+	}
+
+	return cached[name].get();
+}
+
 void Cache::list(JSON::Array &actions) {
 	Actions::iterator iter;
 	for (iter = cached.begin(); iter != cached.end(); iter++) {

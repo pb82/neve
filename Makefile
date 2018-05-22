@@ -42,6 +42,9 @@ config/config.o: config/config.cpp config/config.hpp
 actions/compiler.o: actions/compiler.cpp actions/compiler.hpp
 	$(CXX) -g -c actions/compiler.cpp -o actions/compiler.o
 
+actions/sandbox.o: actions/sandbox.cpp actions/sandbox.hpp
+	$(CXX) -g -c actions/sandbox.cpp -o actions/sandbox.o
+
 jobs/ping.o: jobs/ping.cpp jobs/ping.cpp
 	$(CXX) -g -c jobs/ping.cpp -o jobs/ping.o
 
@@ -63,11 +66,11 @@ main.o: main.cpp
 all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
-		jobs/list.o jobs/run.o persistence/cache.o
+		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
 		http/path.o http/router.o http/response.o loop/loop.o vendor/http_parser.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
-		jobs/list.o jobs/run.o persistence/cache.o \
+		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 .PHONY: clean

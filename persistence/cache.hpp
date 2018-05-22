@@ -8,17 +8,9 @@
 
 #include "../json/value.hpp"
 #include "../logger/logger.hpp"
+#include "../actions/action.hpp"
 
-struct Action;
 typedef std::map<std::string, std::unique_ptr<Action>> Actions;
-
-struct Action {
-	std::string name;
-	std::string bytecode;
-	int timeout = 0;
-	int memory = 0;
-	int size = 0;
-};
 
 class Cache {
 public:
@@ -31,6 +23,7 @@ public:
 	void store(Action *action);
 	void list(JSON::Array &actions);
 	void remove(std::string &name);
+	Action *read(std::string &name);
 
 private:
 	Cache();
