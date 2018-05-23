@@ -59,6 +59,7 @@ public:
 	 * @brief reset Reset index to zero
 	 */
 	void reset();
+	int size() const;
 private:
 	std::ostringstream stream;
 	std::vector<Fragment> fragments;

@@ -10,6 +10,7 @@ import connect from "./commands/connect";
 import createAction from "./commands/create-action";
 import {AxiosError} from "axios";
 import listActions from "./commands/list-actions";
+import runAction from "./commands/run-action";
 
 function logSuccess(result: any) {
     info("Operation successful");
@@ -85,6 +86,15 @@ function main() {
             listActions(config(program))
                 .then(logSuccess)
                 .catch(logError)
+        });
+
+    program
+        .command("run-action <name>")
+        .description("Run action")
+        .action(name => {
+            runAction(name, config(program))
+                .then(logSuccess)
+                .catch(logError);
         });
 
     program.parse(process.argv);

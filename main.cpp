@@ -8,6 +8,7 @@
 #include "jobs/ping.hpp"
 #include "jobs/create.hpp"
 #include "jobs/list.hpp"
+#include "jobs/run.hpp"
 #include "config/config.hpp"
 #include "persistence/cache.hpp"
 
@@ -49,6 +50,11 @@ int main() {
 
 	loop->router()->post("/action", [](HttpRequest *req, void **data) {
 		*data = new Create;
+		return true;
+	});
+
+	loop->router()->post("/action/:id", [](HttpRequest *req, void **data) {
+		*data = new Run;
 		return true;
 	});
 

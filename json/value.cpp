@@ -7,7 +7,7 @@ void Value::toLua(lua_State *L) {
 }
 
 void Value::toLua(lua_State *L, JSON::Value &val) {
-	switch(getType()) {
+	switch(val.getType()) {
 	case JSON::JSON_NULL:
 		lua_pushnil(L);
 		break;

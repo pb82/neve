@@ -23,7 +23,7 @@ bool Compiler::compile() {
 	}
 
 	// Write the dumped bytecode to a std::string
-	lua_dump(L, writeBytecode, &decoded, true);
+	lua_dump(L, writeBytecode, &bytecode, true);
 	lua_close(L);
 	return true;
 }

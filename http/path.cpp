@@ -54,6 +54,10 @@ void Pattern::reset() {
 	index = 0;
 }
 
+int Pattern::size() const {
+	return fragments.size();
+}
+
 Path::Path(int method, std::string mask, MatchCallback cb)
 	: method(method), cb(cb) {
 	this->mask.parse(mask);
@@ -76,6 +80,12 @@ bool Path::match(HttpRequest *request) {
 
 	Fragment maskFragment;
 	Fragment pathFragment;
+
+	// Both patterns need to have the same number of
+	// fragments
+	if (mask.size() != ext.size()) {
+		return false;
+	}
 
 	while (mask.next(maskFragment)) {
 		if (!ext.next(pathFragment)) {

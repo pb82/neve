@@ -39,6 +39,7 @@ void Sandbox::loadLibraries() {
 
 RunCode Sandbox::run(JSON::Value &args, JSON::Value &result, std::string *msg) {
 	int status, type;
+	const char *err = nullptr;
 
 	if (action->timeout > 0 || action->memory) {
 		UPDATE_MS(this, started);
@@ -49,19 +50,22 @@ RunCode Sandbox::run(JSON::Value &args, JSON::Value &result, std::string *msg) {
 			action->bytecode.c_str(),
 			action->bytecode.size(),
 			action->name.c_str())) != LUA_OK) {
-		*msg = lua_tostring(L, -1);
+		err = lua_tostring(L, -1);
+		if (err) { *msg = err; } else { *msg = "Failed to load bytecode"; }
 		return ErrBytecode;
 	}
 
 	// Priming: run the script to set up all global vars
 	if ((status = lua_pcall(L, 0, 0, 0)) != LUA_OK) {
-		*msg = lua_tostring(L, -1);
+		err = lua_tostring(L, -1);
+		if (err) { *msg = err; } else { *msg = "Failed priming"; }
 		return ErrPriming;
 	}
 
 	// Push the main function on the stack
 	if((type = lua_getglobal(L, "main")) != LUA_TFUNCTION) {
-		*msg = lua_tostring(L, -1);
+		err = lua_tostring(L, -1);
+		if (err) { *msg = err; } else { *msg = "Failed to push main function"; }
 		return ErrNoMain;
 	}
 
@@ -91,7 +95,8 @@ RunCode Sandbox::run(JSON::Value &args, JSON::Value &result, std::string *msg) {
 
 	// Second call to actually run the main function
 	if ((status = lua_pcall(L, 1, 1, 0)) != LUA_OK) {
-		*msg = lua_tostring(L, -1);
+		err = lua_tostring(L, -1);
+		if (err) { *msg = err; } else { *msg = "Error in main"; }
 		return ErrMain;
 	}
 

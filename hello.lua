@@ -1,3 +1,7 @@
 function main(args)
-	return "Hello World"
+	if args.name == nil then
+		args.name = "World"
+	end
+
+	return "Hello " .. args.name
 end
