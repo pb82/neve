@@ -64,6 +64,7 @@ int main() {
 	});
 
 	// Start server
+	loop->initTcp();
 	loop->run();
 	return 0;
 }
