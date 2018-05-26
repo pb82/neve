@@ -27,8 +27,18 @@ void Pattern::parseQuery(std::string &path, JSON::Object &params) {
 		}
 	}
 
-	if (stream.str().length() > 0) {
+	// If there was only one key value pair we need to set it here because
+	// the loop will terminate before reaching the '&' where the pair is
+	// stored
+	if (key.length() > 0 && stream.str().length() > 0) {
 		params[key] = stream.str();
+		return;
+	}
+
+	// We also want to support the case where the query string is a flag,
+	// e.g. /a/b?c
+	if (stream.str().length() > 0) {
+		params[stream.str()] = true;
 	}
 }
 
