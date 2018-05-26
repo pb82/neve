@@ -34,13 +34,13 @@ void Loop::parse() {
 	if (!config.is(JSON::JSON_OBJECT)) {
 		throw ConfigError("Invalid config, must be an object");
 	}
-	
+
 	// Get port from config
 	if (!config["port"].is(JSON::JSON_NUMBER)) {
 		throw ConfigError("Invalid config, `port' must be a number");
 	}
 	port = config["port"].as<int>();
-	
+
 	// Get IP address from config
 	if (!config["ipaddress"].is(JSON::JSON_STRING)) {
 		throw ConfigError("Invalid config, `ipaddress' must be a string");
@@ -50,7 +50,7 @@ void Loop::parse() {
 
 void Loop::initTcp() {
 	parse();
-	
+
 	int status = uv_tcp_init(uv_default_loop(), &server);
 	if (status) {
 		logger.error("Error in uv_tcp_init: %d", status);
@@ -90,7 +90,7 @@ int Loop::onUrl(http_parser *parser, const char *at, size_t length) {
 // Read POST request body
 int Loop::onBody(http_parser *parser, const char *at, size_t length) {
 	HttpRequest *request = (HttpRequest *) parser->data;
-	request->body = std::string(at, length);
+	request->body.append(std::string(at, length));
 	return 0;
 }
 
