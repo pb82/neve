@@ -12,6 +12,7 @@
 #include "../http/request.hpp"
 #include "../http/response.hpp"
 #include "../jobs/job.hpp"
+#include "../config/config.hpp"
 
 class Loop {
 public:
@@ -23,9 +24,11 @@ public:
 	 * will block
 	 */
 	void run() const;
+	void initTcp();
+
 	HttpRouter *const router();
 private:
-	void initTcp(int port, const char *ipaddress);
+	void parse();
 
 	// libuv callbacks
 	static void serverOnConnect(uv_stream_t *server, int status);
@@ -47,6 +50,11 @@ private:
 	static Logger logger;
 	static http_parser_settings settings;
 
+	// Parsed properties
+	JSON::Value config;
+	std::string ipaddress;
+	int port;
+	
 	uv_tcp_t server;
 	sockaddr_in addr;
 	HttpRouter *_router;

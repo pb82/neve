@@ -5,28 +5,11 @@ Logger Loop::logger;
 http_parser_settings Loop::settings;
 // End static initializations
 
-Loop::Loop(JSON::Value config, HttpRouter *router) : _router(router) {
+Loop::Loop(JSON::Value config, HttpRouter *router) : config(config), _router(router) {
 	// Http parser callbacks
 	settings.on_url = onUrl;
 	settings.on_body = onBody;
 	settings.on_message_complete = onMessageComplete;
-
-	// config params
-	if (!config["port"].is(JSON::JSON_NUMBER)) {
-		throw std::runtime_error("server: port undefined or invalid");
-	}
-
-	const char *ipaddress;
-	if (config["ipaddress"].is(JSON::JSON_NULL)) {
-		ipaddress = "0.0.0.0";
-	} else {
-		ipaddress = config["ipaddress"].as<std::string>().c_str();
-	}
-
-	int port = config["port"].as<int>();
-
-	// Http server
-	initTcp(port, ipaddress);
 }
 
 Loop::~Loop() {
@@ -47,7 +30,27 @@ Loop::~Loop() {
 	if (_router) delete _router;
 }
 
-void Loop::initTcp(int port, const char *ipaddress) {
+void Loop::parse() {
+	if (!config.is(JSON::JSON_OBJECT)) {
+		throw ConfigError("Invalid config, must be an object");
+	}
+	
+	// Get port from config
+	if (!config["port"].is(JSON::JSON_NUMBER)) {
+		throw ConfigError("Invalid config, `port' must be a number");
+	}
+	port = config["port"].as<int>();
+	
+	// Get IP address from config
+	if (!config["ipaddress"].is(JSON::JSON_STRING)) {
+		throw ConfigError("Invalid config, `ipaddress' must be a string");
+	}
+	ipaddress = config["ipaddress"].as<std::string>();
+}
+
+void Loop::initTcp() {
+	parse();
+	
 	int status = uv_tcp_init(uv_default_loop(), &server);
 	if (status) {
 		logger.error("Error in uv_tcp_init: %d", status);
@@ -56,7 +59,7 @@ void Loop::initTcp(int port, const char *ipaddress) {
 
 	server.data = _router;
 
-	uv_ip4_addr(ipaddress, port, &addr);
+	uv_ip4_addr(ipaddress.c_str(), port, &addr);
 	status = uv_tcp_bind(&server, (const sockaddr *) &addr, 0);
 	if (status) {
 		logger.error("Error in uv_tcp_bind: %d", status);
@@ -69,7 +72,7 @@ void Loop::initTcp(int port, const char *ipaddress) {
 		return;
 	}
 
-	logger.info("Server listening on %s:%d", ipaddress, port);
+	logger.info("Server listening on %s:%d", ipaddress.c_str(), port);
 }
 
 void Loop::cleanup(uv_handle_t *handle) {
