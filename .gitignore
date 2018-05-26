@@ -1,5 +1,6 @@
 *.o
 neve
+unit
 
 # Qt Creator
 neve.config

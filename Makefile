@@ -1,4 +1,5 @@
 BIN = neve
+TESTBIN = unit
 LIB = -luv -llua
 
 .PHONY: first
@@ -60,9 +61,6 @@ jobs/list.o: jobs/list.cpp jobs/list.cpp
 persistence/cache.o: persistence/cache.cpp persistence/cache.hpp
 	$(CXX) -g -c persistence/cache.cpp -o persistence/cache.o
 
-main.o: main.cpp
-	$(CXX) -g -c main.cpp
-
 all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
@@ -72,6 +70,23 @@ all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
 		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
+
+
+# =============
+# Tests section
+# =============
+tests/main.o: tests/main.cpp
+	$(CXX) -c tests/main.cpp -o tests/main.o
+
+.PHONY: tests
+tests: tests/main.o tests/t_http_path.cpp
+	$(CXX) $(LIB) -pipe -g -Wall -W -fPIC \
+		tests/t_http_path.cpp tests/main.o -o $(TESTBIN)
+	@./$(TESTBIN)
+# =================
+# End tests section
+# =================
+
 
 .PHONY: clean
 clean:
