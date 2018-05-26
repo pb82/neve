@@ -15,6 +15,9 @@
  * destructor.
  */
 struct HttpRequest {
+	// No argument constructor for testing
+	HttpRequest() : client(nullptr), data(nullptr) { }
+
 	HttpRequest(uv_tcp_t *client, void *data) : client(client), data(data) {
 		http_parser_init(&parser, HTTP_REQUEST);
 		client->data = this;

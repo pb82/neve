@@ -45,7 +45,7 @@ class Pattern {
 public:
 	Pattern() { }
 
-	void parse(std::string path);
+	void parse(std::string path, std::map<std::string, std::string> *params = nullptr);
 
 	/**
 	 * @brief next Read the next fragment, incrementing the index
@@ -61,6 +61,15 @@ public:
 	void reset();
 	int size() const;
 private:
+	/**
+	 * @brief parseQuery Parse query string
+	 * Parses the query part of an URL (the part after the ? in /a/b?c=d) and
+	 * stores the key-value pairs in params
+	 * @param path The URL for wich to parse the query string
+	 * @param params The map to store the key value pairs in
+	 */
+	void parseQuery(std::string &path, std::map<std::string, std::string> &params);
+
 	std::ostringstream stream;
 	std::vector<Fragment> fragments;
 	int index = 0;

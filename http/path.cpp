@@ -6,15 +6,44 @@ Fragment& Fragment::operator=(const Fragment& other) {
 	return *this;
 }
 
-void Pattern::parse(std::string path) {
-	bool isVariable = false;
+void Pattern::parseQuery(std::string &path, std::map<std::string, std::string> &params) {
+	std::string key;
+	stream.str("");
+
+	while (index < path.length()) {
+		char current = path.at(index++);
+
+		switch (current) {
+		case '=':
+			key = stream.str();
+			stream.str("");
+			break;
+		case '&':
+			params[key] = stream.str();
+			stream.str("");
+			break;
+		default:
+			stream << current;
+		}
+	}
+
+	if (stream.str().length() > 0) {
+		params[key] = stream.str();
+	}
+}
+
+void Pattern::parse(std::string path, std::map<std::string, std::string> *params) {
+	bool isVariable = false, hasQuery = false;
 	stream.str("");
 
 	while (index < path.length()) {
 		char current = path.at(index++);
 
 		// We don't deal with query parameters here
-		if (current == '?') break;
+		if (current == '?') {
+			hasQuery = true;
+			break;
+		}
 
 		// Deal with all other characters
 		switch(current) {
@@ -37,6 +66,10 @@ void Pattern::parse(std::string path) {
 	// Store the final fragment
 	if (stream.str().length() > 0) {
 		fragments.push_back({isVariable, stream.str()});
+	}
+
+	if (hasQuery && params != nullptr) {
+		parseQuery(path, *params);
 	}
 }
 
@@ -74,7 +107,9 @@ bool Path::match(HttpRequest *request) {
 	}
 
 	Pattern ext;
-	ext.parse(request->url);
+	// Pass a pointer to the params because we want to store
+	// the query args to should there be some
+	ext.parse(request->url, &request->params);
 	ext.reset();
 	mask.reset();
 

@@ -71,7 +71,6 @@ all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
 		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
-
 # =============
 # Tests section
 # =============
@@ -79,14 +78,15 @@ tests/main.o: tests/main.cpp
 	$(CXX) -c tests/main.cpp -o tests/main.o
 
 .PHONY: tests
-tests: tests/main.o tests/t_http_path.cpp
+tests: tests/main.o tests/t_http_path.cpp http/path.o
 	$(CXX) $(LIB) -pipe -g -Wall -W -fPIC \
-		tests/t_http_path.cpp tests/main.o -o $(TESTBIN)
+		http/path.o \
+		tests/t_http_path.cpp \
+		tests/main.o -o $(TESTBIN)
 	@./$(TESTBIN)
 # =================
 # End tests section
 # =================
-
 
 .PHONY: clean
 clean:
