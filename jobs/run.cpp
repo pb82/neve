@@ -37,6 +37,12 @@ void Run::execute() {
 	// Get the requested action from the cache and create a Sandbox
 	// around it
 	Action *action = Cache::i().read(getHttpRequest()->params["id"]);
+	if (!action) {
+		result = "No such action";
+		code = 404;
+		return;
+	}
+
 	Sandbox sandbox(action);
 
 	// Run the action in the sandbox

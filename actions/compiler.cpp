@@ -15,8 +15,7 @@ bool Compiler::compile() {
 	lua_State *L = luaL_newstate();
 
 	// Check if the chunk was compiled without errors
-	if ((status = luaL_loadstring(L, decoded.c_str())) != LUA_OK)
-	{
+	if ((status = luaL_loadstring(L, decoded.c_str())) != LUA_OK) {
 		error = lua_tostring(L, -1);
 		logger.error(error.c_str());
 		return false;

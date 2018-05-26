@@ -8,7 +8,7 @@ function readFileAsJSON(path: string) : string {
 
 export default function runAction(name: string, options: any) {
     const url = options.url + "/action/" + name;
-    
+
     let payload = null;
 
     if (options.file && statSync(options.file).isFile()) {
