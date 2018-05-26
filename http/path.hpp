@@ -45,7 +45,7 @@ class Pattern {
 public:
 	Pattern() { }
 
-	void parse(std::string path, std::map<std::string, std::string> *params = nullptr);
+	void parse(std::string path, JSON::Object *params = nullptr);
 
 	/**
 	 * @brief next Read the next fragment, incrementing the index
@@ -68,7 +68,7 @@ private:
 	 * @param path The URL for wich to parse the query string
 	 * @param params The map to store the key value pairs in
 	 */
-	void parseQuery(std::string &path, std::map<std::string, std::string> &params);
+	void parseQuery(std::string &path, JSON::Object &params);
 
 	std::ostringstream stream;
 	std::vector<Fragment> fragments;

@@ -2,10 +2,10 @@
 #define REQUEST_H
 
 #include <string>
-#include <map>
 #include <uv.h>
 
 #include "../vendor/http_parser.h"
+#include "../json/value.hpp"
 
 /**
  * @brief The HttpRequest struct
@@ -30,7 +30,7 @@ struct HttpRequest {
 	void *data;
 
 	// Path params
-	std::map<std::string, std::string> params;
+	JSON::Object params;
 
 	// Parsed data
 	int method;

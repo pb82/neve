@@ -6,7 +6,7 @@ Fragment& Fragment::operator=(const Fragment& other) {
 	return *this;
 }
 
-void Pattern::parseQuery(std::string &path, std::map<std::string, std::string> &params) {
+void Pattern::parseQuery(std::string &path, JSON::Object &params) {
 	std::string key;
 	stream.str("");
 
@@ -32,7 +32,7 @@ void Pattern::parseQuery(std::string &path, std::map<std::string, std::string> &
 	}
 }
 
-void Pattern::parse(std::string path, std::map<std::string, std::string> *params) {
+void Pattern::parse(std::string path, JSON::Object *params) {
 	bool isVariable = false, hasQuery = false;
 	stream.str("");
 
