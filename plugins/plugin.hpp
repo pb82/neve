@@ -6,6 +6,20 @@
 #include "../json/value.hpp"
 
 /**
+ * @brief The PluginError class
+ * Thrown when either the configure, start or call methods of a
+ * plugin encounter an unexpected condition.
+ */
+class PluginError : public std::runtime_error
+{
+public:
+	PluginError(std::string message)
+		: std::runtime_error(message)
+	{
+	}
+};
+
+/**
  * @brief The Plugin class
  * Base class for all plugins. Provides methods to instantiate, configure,
  * run and cleanup a plugin.
@@ -19,7 +33,7 @@ public:
 	 * resources (db connections, memory, files) that they
 	 * allocated during their runtime.
 	 */
-	virtual ~Plugin() = 0;
+	virtual ~Plugin() { }
 
 	/**
 	 * @brief name Plugin name
@@ -27,7 +41,7 @@ public:
 	 * that actions will use to call it.
 	 * @return string The name of the plugin
 	 */
-	virtual std::string name() = 0;
+	virtual std::string name() const = 0;
 
 	/**
 	 * @brief configure Configure plugin

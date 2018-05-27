@@ -93,12 +93,16 @@ tests: tests/main.o tests/t_http_path.cpp http/path.o
 # Plugins section
 # ===============
 
+MONGO_PLUGIN_CXX_ARGS = -I/usr/include/libmongoc-1.0 -I/usr/include/libbson-1.0 -lmongoc-1.0 -lbson-1.0
+
 plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp plugins/default/mongo/plugin_mongo.cpp
-	$(CXX) -pipe -shared -fPIC plugins/default/mongo/plugin_mongo.cpp -o plugins/default/mongo/plugin_mongo.so
+	$(CXX) -pipe -shared -fPIC $(MONGO_PLUGIN_CXX_ARGS) \
+	plugins/default/mongo/plugin_mongo.cpp \
+	-o plugins/default/mongo/plugin_mongo.so
 
 .PHONY: plugins
 plugins: plugins/default/mongo/plugin_mongo.so
-	@echo "App plugins build"
+	@echo "All plugins built"
 
 # ===================
 # End Plugins section

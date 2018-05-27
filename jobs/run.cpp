@@ -36,7 +36,8 @@ void Run::execute() {
 
 	// Get the requested action from the cache and create a Sandbox
 	// around it
-	Action *action = Cache::i().read(getHttpRequest()->params["id"]);
+	std::string name = getHttpRequest()->params["id"].as<std::string>();
+	Action *action = Cache::i().read(name);
 	if (!action) {
 		result = "No such action";
 		code = 404;

@@ -7,6 +7,11 @@
 #include "../macros.hpp"
 #include "../json/value.hpp"
 
+enum ConfigType {
+	Server = 1,
+	Plugin
+};
+
 /**
  * @brief The ConfigError class
  * Thrown when the config file is not found or when an error
@@ -36,18 +41,21 @@ public:
 	void load(const char *file);
 
 	// Get configuration for the given category
-	JSON::Value &get(const char *key);
+	JSON::Value &get(const char *key, ConfigType type = Server);
 
 private:
 	// Lua callbacks
 	static int config(lua_State *L);
+	static int plugin(lua_State *L);
 	static int store(lua_State *L);
 
 	lua_State *L;
 	const char* currentCategory;
+	ConfigType currentType = Server;
 
 	// Stores the actual configuration categories
 	std::map<std::string, JSON::Value> serverConfig;
+	std::map<std::string, JSON::Value> pluginConfig;
 };
 
 #endif // CONFIG_H
