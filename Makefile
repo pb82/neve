@@ -81,6 +81,7 @@ tests/main.o: tests/main.cpp
 tests: tests/main.o tests/t_http_path.cpp http/path.o
 	$(CXX) $(LIB) -pipe -g -Wall -W -fPIC \
 		http/path.o \
+		json/value.o \
 		tests/t_http_path.cpp \
 		tests/main.o -o $(TESTBIN)
 	@./$(TESTBIN)
