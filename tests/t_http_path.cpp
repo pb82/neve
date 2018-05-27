@@ -66,6 +66,53 @@ TEST_CASE("HTTP/Path", "[path]") {
 		// Match same path
 		req.url = "/a/hello/b";
 		req.method = GET;
-		REQUIRE(simple.match(&req) == true);
+		REQUIRE(variable.match(&req) == true);
+		REQUIRE(req.params.size() == 1);
+		REQUIRE(req.params["id"].is(JSON::JSON_STRING));
+		REQUIRE(req.params["id"].as<std::string>().compare("hello") == 0);
+
+		// Variables and query strings
+		req.url = "/a/hello/b?block=true";
+		req.method = GET;
+		REQUIRE(variable.match(&req) == true);
+		REQUIRE(req.params.size() == 2);
+		REQUIRE(req.params["id"].is(JSON::JSON_STRING));
+		REQUIRE(req.params["id"].as<std::string>().compare("hello") == 0);
+		REQUIRE(req.params["block"].is(JSON::JSON_STRING));
+		REQUIRE(req.params["block"].as<std::string>().compare("true") == 0);
+
+		// Variables and multiple queries
+		req.url = "/a/hello/b?block=true&count=4";
+		req.method = GET;
+		REQUIRE(variable.match(&req) == true);
+		REQUIRE(req.params.size() == 3);
+		REQUIRE(req.params["id"].is(JSON::JSON_STRING));
+		REQUIRE(req.params["id"].as<std::string>().compare("hello") == 0);
+		REQUIRE(req.params["block"].is(JSON::JSON_STRING));
+		REQUIRE(req.params["block"].as<std::string>().compare("true") == 0);
+		REQUIRE(req.params["count"].is(JSON::JSON_STRING));
+		REQUIRE(req.params["count"].as<int>() == 4);
+
+		// Variables and query flags
+		req.url = "/a/hello/b?block";
+		req.method = GET;
+		REQUIRE(variable.match(&req) == true);
+		REQUIRE(req.params.size() == 2);
+		REQUIRE(req.params["id"].is(JSON::JSON_STRING));
+		REQUIRE(req.params["id"].as<std::string>().compare("hello") == 0);
+		REQUIRE(req.params["block"].is(JSON::JSON_BOOL));
+		REQUIRE(req.params["block"].as<bool>() == true);
+
+		// Variables and multiple query flags
+		req.url = "/a/hello/b?block&count";
+		req.method = GET;
+		REQUIRE(variable.match(&req) == true);
+		REQUIRE(req.params.size() == 3);
+		REQUIRE(req.params["id"].is(JSON::JSON_STRING));
+		REQUIRE(req.params["id"].as<std::string>().compare("hello") == 0);
+		REQUIRE(req.params["block"].is(JSON::JSON_BOOL));
+		REQUIRE(req.params["block"].as<bool>() == true);
+		REQUIRE(req.params["count"].is(JSON::JSON_BOOL));
+		REQUIRE(req.params["count"].as<bool>() == true);
 	}
 }
