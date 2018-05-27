@@ -1,4 +1,5 @@
 *.o
+*.so
 neve
 unit
 
@@ -17,3 +18,4 @@ cli/dist
 
 # Idea
 .idea
+

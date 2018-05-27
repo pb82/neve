@@ -89,6 +89,21 @@ tests: tests/main.o tests/t_http_path.cpp http/path.o
 # End tests section
 # =================
 
+# ===============
+# Plugins section
+# ===============
+
+plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp plugins/default/mongo/plugin_mongo.cpp
+	$(CXX) -pipe -shared -fPIC plugins/default/mongo/plugin_mongo.cpp -o plugins/default/mongo/plugin_mongo.so
+
+.PHONY: plugins
+plugins: plugins/default/mongo/plugin_mongo.so
+	@echo "App plugins build"
+
+# ===================
+# End Plugins section
+# ===================
+
 .PHONY: clean
 clean:
 	rm -f $(BIN)
