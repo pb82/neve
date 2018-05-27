@@ -59,4 +59,13 @@ TEST_CASE("HTTP/Path", "[path]") {
 		REQUIRE(req.params["count"].is(JSON::JSON_BOOL));
 		REQUIRE(req.params["count"].as<bool>() == true);
 	}
+
+	Path variable(GET, "/a/:id/b", 0);
+
+	SECTION("Path variables") {
+		// Match same path
+		req.url = "/a/hello/b";
+		req.method = GET;
+		REQUIRE(simple.match(&req) == true);
+	}
 }
