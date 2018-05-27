@@ -10,7 +10,7 @@ PluginMongo::~PluginMongo() {
 }
 
 void PluginMongo::start() {
-	// For now we're using non pooled connection mode
+	// For now we're using non-pooled connection mode
 	client = mongoc_client_new(connectionString.c_str());
 	if (!client) {
 		throw PluginError("failed to create mongo client");
@@ -24,11 +24,14 @@ void PluginMongo::configure(JSON::Value &config) {
 		throw PluginError("config missing or invalid");
 	}
 
+	// Get the connection string
 	if (!config["connectionString"].is(JSON::JSON_STRING)) {
 		throw PluginError("`connectionString' missing or invalid");
 	}
 	connectionString = config["connectionString"].as<std::string>();
 
+	// Get the database that this plugin instance is allowed
+	// to use
 	if (!config["database"].is(JSON::JSON_STRING)) {
 		throw PluginError("`database' missing or invalid");
 	}
