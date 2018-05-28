@@ -30,18 +30,7 @@ void connectSignals() {
 	signal(SIGSEGV, onSignal);
 }
 
-int main() {
-	// Cleanup handlers
-	connectSignals();
-
-	config = new Config;
-	config->load("./config.lua");
-
-	loop = new Loop(config->get("server"), new HttpRouter);
-
-	// Configuration
-	Logger::configure(config->get("logger"));
-
+void setupRoutes() {
 	// Http endpoints
 	loop->router()->get("/ping", [](HttpRequest *req, void **data) {
 		*data = new Ping;
@@ -62,6 +51,21 @@ int main() {
 		*data = new List;
 		return true;
 	});
+}
+
+int main() {
+	// Cleanup handlers
+	connectSignals();
+
+	config = new Config;
+	config->load("./config.lua");
+
+	// Set global log level
+	Logger::configure(config->get("logger"));
+
+	// Setup the event loop & http router
+	loop = new Loop(config->get("server"), new HttpRouter);
+	setupRoutes();
 
 	// Start server
 	loop->initTcp();

@@ -61,14 +61,19 @@ jobs/list.o: jobs/list.cpp jobs/list.cpp
 persistence/cache.o: persistence/cache.cpp persistence/cache.hpp
 	$(CXX) -g -c persistence/cache.cpp -o persistence/cache.o
 
+plugins/registry.o: plugins/registry.cpp plugins/registry.hpp
+	$(CXX) -g -c plugins/registry.cpp -o plugins/registry.o
+
 all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
-		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o
+		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
+		plugins/registry.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
 		http/path.o http/router.o http/response.o loop/loop.o vendor/http_parser.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
 		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
+		plugins/registry.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 # =============

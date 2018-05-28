@@ -88,3 +88,9 @@ JSON::Value &Config::get(const char *key, ConfigType type) {
 		? serverConfig[key]
 		: pluginConfig[key];
 }
+
+bool Config::has(const char *key, ConfigType type) {
+	return type == Server
+		? serverConfig.find(key) != serverConfig.end()
+		: pluginConfig.find(key) != pluginConfig.end();
+}

@@ -42,6 +42,7 @@ public:
 
 	// Get configuration for the given category
 	JSON::Value &get(const char *key, ConfigType type = Server);
+	bool has(const char *key, ConfigType type = Server);
 
 private:
 	// Lua callbacks

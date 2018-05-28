@@ -16,8 +16,8 @@ Config "logger" {
 	level = LogLevel.Info
 }
 
-Plugin "mongo" {
+Config "persistence" {
 	file="./plugins/default/mongo/plugin_mongo.so",
 	connectionString="mongodb://database:27017",
-	database="mongoplugin"
+	database="admin"
 }
