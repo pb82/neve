@@ -31,18 +31,12 @@ private:
 
 	// Mongodb connection object, will exist during the lifetime
 	// of the plugin
-	mongoc_client_t *client;
-	mongoc_database_t *db;
+	mongoc_client_t *client = nullptr;
+	mongoc_database_t *db = nullptr;
 };
 
-/**
- * @brief newInstance Returns a new instance of the plugin
- * This needs to be exported as a C function to avoid name mangling. Plugins
- * should support many instances, e.g. the mongo plugin will be used for
- * general storage as well as for the admin DB itself
- */
-extern "C" Plugin *newInstance() {
-	return new PluginMongo;
-}
+// Creates the entrypoint for the server to create an instance
+// of the plugin
+EXPORT_PLUGIN(PluginMongo)
 
 #endif // PLUGIN_MONGO_H

@@ -90,6 +90,9 @@ int Loop::onUrl(http_parser *parser, const char *at, size_t length) {
 // Read POST request body
 int Loop::onBody(http_parser *parser, const char *at, size_t length) {
 	HttpRequest *request = (HttpRequest *) parser->data;
+
+	// This method could be called multiple times for a single request so
+	// we need to use append
 	request->body.append(std::string(at, length));
 	return 0;
 }

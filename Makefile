@@ -1,6 +1,6 @@
 BIN = neve
 TESTBIN = unit
-LIB = -luv -llua
+LIB = -luv -llua -ldl
 
 .PHONY: first
 first:
@@ -61,14 +61,14 @@ jobs/list.o: jobs/list.cpp jobs/list.cpp
 persistence/cache.o: persistence/cache.cpp persistence/cache.hpp
 	$(CXX) -g -c persistence/cache.cpp -o persistence/cache.o
 
-plugins/registry.o: plugins/registry.cpp plugins/registry.hpp
+plugins/registry.o: plugins/registry.cpp plugins/registry.hpp plugins/plugin.hpp
 	$(CXX) -g -c plugins/registry.cpp -o plugins/registry.o
 
-all: main.o json/printer.o json/parser.o logger/logger.o http/path.o \
+all: json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
 		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
-		plugins/registry.o
+		plugins/registry.o main.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
 		http/path.o http/router.o http/response.o loop/loop.o vendor/http_parser.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
@@ -101,12 +101,18 @@ tests: tests/main.o tests/t_http_path.cpp http/path.o
 MONGO_PLUGIN_CXX_ARGS = -I/usr/include/libmongoc-1.0 -I/usr/include/libbson-1.0 -lmongoc-1.0 -lbson-1.0
 
 plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp plugins/default/mongo/plugin_mongo.cpp
-	$(CXX) -pipe -shared -fPIC $(MONGO_PLUGIN_CXX_ARGS) \
+	$(CXX) -g -pipe -shared -fPIC $(MONGO_PLUGIN_CXX_ARGS) \
 	plugins/default/mongo/plugin_mongo.cpp \
 	-o plugins/default/mongo/plugin_mongo.so
 
+plugins/default/skeleton/plugin_skeleton.so: plugins/default/skeleton/plugin_skeleton.hpp plugins/default/skeleton/plugin_skeleton.cpp
+	$(CXX) -g -pipe -shared -fPIC \
+	plugins/default/skeleton/plugin_skeleton.cpp \
+	-o plugins/default/skeleton/plugin_skeleton.so
+
 .PHONY: plugins
-plugins: plugins/default/mongo/plugin_mongo.so
+plugins: plugins/default/mongo/plugin_mongo.so \
+	plugins/default/skeleton/plugin_skeleton.so
 	@echo "All plugins built"
 
 # ===================

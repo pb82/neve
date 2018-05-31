@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <cstdarg>
 #include <string>
+#include <mutex>
 
 #include "../json/value.hpp"
 
@@ -47,6 +48,7 @@ public:
 private:
 	void log(const char *tag, const char *format, ...);
 	static int level;
+	std::mutex lock;
 };
 
 #endif // LOGGER_H

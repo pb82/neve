@@ -5,13 +5,19 @@
 
 #include "../json/value.hpp"
 
+#define PLUGIN_CREATE	"create"
+#define PLUGIN_DESTROY	"destroy"
+
+#define EXPORT_PLUGIN(C)									\
+	extern "C" Plugin *create()			{ return new C; }	\
+	extern "C" void destroy(Plugin *i)	{ delete i; }
+
 /**
  * @brief The PluginError class
  * Thrown when either the configure, start or call methods of a
  * plugin encounter an unexpected condition.
  */
-class PluginError : public std::runtime_error
-{
+class PluginError : public std::runtime_error {
 public:
 	PluginError(std::string message)
 		: std::runtime_error(message)
@@ -24,8 +30,7 @@ public:
  * Base class for all plugins. Provides methods to instantiate, configure,
  * run and cleanup a plugin.
  */
-class Plugin
-{
+class Plugin {
 public:
 	/**
 	 * @brief ~Plugin destructor

@@ -18,7 +18,7 @@ int Config::config(lua_State *L) {
 
 	// Get and store the config category
 	This->currentCategory = lua_tostring(L, 1);
-	This->currentType = Server;
+	This->currentType = ServerConfig;
 
 	lua_remove(L, 1);
 	lua_pushcfunction(L, store);
@@ -35,7 +35,7 @@ int Config::plugin(lua_State *L) {
 
 	// Get and store the config category
 	This->currentCategory = lua_tostring(L, 1);
-	This->currentType = Plugin;
+	This->currentType = PluginConfig;
 
 	lua_remove(L, 1);
 	lua_pushcfunction(L, store);
@@ -54,10 +54,10 @@ int Config::store(lua_State *L) {
 	config.fromLua(L);
 
 	switch(This->currentType) {
-	case Server:
+	case ServerConfig:
 		This->serverConfig[This->currentCategory] = config;
 		break;
-	case Plugin:
+	case PluginConfig:
 		This->pluginConfig[This->currentCategory] = config;
 		break;
 	}
@@ -84,13 +84,13 @@ void Config::load(const char *file) {
 }
 
 JSON::Value &Config::get(const char *key, ConfigType type) {
-	return type == Server
+	return type == ServerConfig
 		? serverConfig[key]
 		: pluginConfig[key];
 }
 
 bool Config::has(const char *key, ConfigType type) {
-	return type == Server
+	return type == ServerConfig
 		? serverConfig.find(key) != serverConfig.end()
 		: pluginConfig.find(key) != pluginConfig.end();
 }

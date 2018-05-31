@@ -11,6 +11,7 @@
 #include "jobs/run.hpp"
 #include "config/config.hpp"
 #include "persistence/cache.hpp"
+#include "plugins/registry.hpp"
 
 // Globals
 Loop *loop = nullptr;
@@ -53,6 +54,23 @@ void setupRoutes() {
 	});
 }
 
+bool tryLoadPersistence() {
+	// If the config file does not have a persistence section then
+	// just return here. Actions will not be persisted but the cache
+	// will still work
+	if (!config->has("persistence")) return false;
+
+	JSON::Value persistenceConfig = config->get("persistence");
+
+	if (!persistenceConfig["path"].is(JSON::JSON_STRING)) {
+		return false;
+	}
+	std::string path = persistenceConfig["path"].as<std::string>();
+	PluginRegistry::i().newInstance("skeleton", path);
+	// PluginRegistry::i().cleanup();
+	return true;
+}
+
 int main() {
 	// Cleanup handlers
 	connectSignals();
@@ -62,6 +80,9 @@ int main() {
 
 	// Set global log level
 	Logger::configure(config->get("logger"));
+
+	// Try to load the mongo plugin and set up persistence
+	tryLoadPersistence();
 
 	// Setup the event loop & http router
 	loop = new Loop(config->get("server"), new HttpRouter);

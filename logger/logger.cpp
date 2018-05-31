@@ -12,6 +12,9 @@ void Logger::configure(JSON::Value &config) {
 }
 
 void Logger::log(const char *tag, const char *format, ...) {
+	// We don't want multiple threads writing to stdout at the
+	// same time
+	std::lock_guard<std::mutex> guard(lock);
 	va_list argptr;
 	va_start(argptr, format);
 	std::cout << std::left << std::setw(10) << tag;

@@ -8,8 +8,8 @@
 #include "../json/value.hpp"
 
 enum ConfigType {
-	Server = 1,
-	Plugin
+	ServerConfig = 1,
+	PluginConfig
 };
 
 /**
@@ -41,8 +41,8 @@ public:
 	void load(const char *file);
 
 	// Get configuration for the given category
-	JSON::Value &get(const char *key, ConfigType type = Server);
-	bool has(const char *key, ConfigType type = Server);
+	JSON::Value &get(const char *key, ConfigType type = ServerConfig);
+	bool has(const char *key, ConfigType type = ServerConfig);
 
 private:
 	// Lua callbacks
@@ -52,7 +52,7 @@ private:
 
 	lua_State *L;
 	const char* currentCategory;
-	ConfigType currentType = Server;
+	ConfigType currentType = ServerConfig;
 
 	// Stores the actual configuration categories
 	std::map<std::string, JSON::Value> serverConfig;
