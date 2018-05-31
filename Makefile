@@ -11,58 +11,58 @@ check:
 	cat -e -t -v  Makefile
 
 vendor/http_parser.o: vendor/http_parser.c vendor/http_parser.h
-	$(CXX) -g -c vendor/http_parser.c -o vendor/http_parser.o
+	$(CXX) -g -c -fPIC vendor/http_parser.c -o vendor/http_parser.o
 
 loop/loop.o: loop/loop.cpp loop/loop.hpp
-	$(CXX) -g -c loop/loop.cpp -o loop/loop.o
+	$(CXX) -g -c -fPIC loop/loop.cpp -o loop/loop.o
 
 http/path.o: http/path.cpp http/path.hpp
-	$(CXX) -g -c http/path.cpp -o http/path.o
+	$(CXX) -g -c -fPIC http/path.cpp -o http/path.o
 
 http/router.o: http/router.cpp http/router.hpp
-	$(CXX) -g -c http/router.cpp -o http/router.o
+	$(CXX) -g -c -fPIC http/router.cpp -o http/router.o
 
 http/response.o: http/response.cpp http/response.hpp
-	$(CXX) -g -c http/response.cpp -o http/response.o
+	$(CXX) -g -c -fPIC http/response.cpp -o http/response.o
 
 logger/logger.o: logger/logger.cpp logger/logger.hpp
-	$(CXX) -g -c logger/logger.cpp -o logger/logger.o
+	$(CXX) -g -c -fPIC logger/logger.cpp -o logger/logger.o
 
 json/value.o: json/value.cpp json/value.hpp
-	$(CXX) -g -c json/value.cpp -o json/value.o
+	$(CXX) -g -c -fPIC json/value.cpp -o json/value.o
 
 json/parser.o: json/parser.cpp json/parser.hpp
-	$(CXX) -g -c json/parser.cpp -o json/parser.o
+	$(CXX) -g -c -fPIC json/parser.cpp -o json/parser.o
 
 json/printer.o: json/printer.cpp json/printer.hpp
-	$(CXX) -g -c json/printer.cpp -o json/printer.o
+	$(CXX) -g -c -fPIC json/printer.cpp -o json/printer.o
 
 config/config.o: config/config.cpp config/config.hpp
-	$(CXX) -g -c config/config.cpp -o config/config.o
+	$(CXX) -g -c -fPIC config/config.cpp -o config/config.o
 
 actions/compiler.o: actions/compiler.cpp actions/compiler.hpp
-	$(CXX) -g -c actions/compiler.cpp -o actions/compiler.o
+	$(CXX) -g -c -fPIC actions/compiler.cpp -o actions/compiler.o
 
 actions/sandbox.o: actions/sandbox.cpp actions/sandbox.hpp
-	$(CXX) -g -c actions/sandbox.cpp -o actions/sandbox.o
+	$(CXX) -g -c -fPIC actions/sandbox.cpp -o actions/sandbox.o
 
 jobs/ping.o: jobs/ping.cpp jobs/ping.cpp
-	$(CXX) -g -c jobs/ping.cpp -o jobs/ping.o
+	$(CXX) -g -c -fPIC jobs/ping.cpp -o jobs/ping.o
 
 jobs/create.o: jobs/create.cpp jobs/create.cpp
-	$(CXX) -g -c jobs/create.cpp -o jobs/create.o
+	$(CXX) -g -c -fPIC jobs/create.cpp -o jobs/create.o
 
 jobs/run.o: jobs/run.cpp jobs/run.cpp
-	$(CXX) -g -c jobs/run.cpp -o jobs/run.o
+	$(CXX) -g -c -fPIC jobs/run.cpp -o jobs/run.o
 
 jobs/list.o: jobs/list.cpp jobs/list.cpp
-	$(CXX) -g -c jobs/list.cpp -o jobs/list.o
+	$(CXX) -g -c -fPIC jobs/list.cpp -o jobs/list.o
 
 persistence/cache.o: persistence/cache.cpp persistence/cache.hpp
-	$(CXX) -g -c persistence/cache.cpp -o persistence/cache.o
+	$(CXX) -g -c -fPIC persistence/cache.cpp -o persistence/cache.o
 
 plugins/registry.o: plugins/registry.cpp plugins/registry.hpp plugins/plugin.hpp
-	$(CXX) -g -c plugins/registry.cpp -o plugins/registry.o
+	$(CXX) -g -c -fPIC plugins/registry.cpp -o plugins/registry.o
 
 all: json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
@@ -100,9 +100,9 @@ tests: tests/main.o tests/t_http_path.cpp http/path.o
 
 MONGO_PLUGIN_CXX_ARGS = -I/usr/include/libmongoc-1.0 -I/usr/include/libbson-1.0 -lmongoc-1.0 -lbson-1.0
 
-plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp plugins/default/mongo/plugin_mongo.cpp
+plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp plugins/default/mongo/plugin_mongo.cpp json/printer.o
 	$(CXX) -g -pipe -shared -fPIC $(MONGO_PLUGIN_CXX_ARGS) \
-	plugins/default/mongo/plugin_mongo.cpp \
+	plugins/default/mongo/plugin_mongo.cpp json/printer.o \
 	-o plugins/default/mongo/plugin_mongo.so
 
 plugins/default/skeleton/plugin_skeleton.so: plugins/default/skeleton/plugin_skeleton.hpp plugins/default/skeleton/plugin_skeleton.cpp

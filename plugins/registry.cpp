@@ -27,7 +27,7 @@ void PluginRegistry::cleanup() {
 	}
 }
 
-Plugin *PluginRegistry::newInstance(std::string name, std::string& path) {
+Plugin *PluginRegistry::newInstance(std::string name, std::string& path, JSON::Value &config) {
 	logger.debug("Creating a new instance of plugin %s", name.c_str());
 	PluginHandle* handle = getHandle(name, path);
 	if (!handle) {
@@ -36,6 +36,16 @@ Plugin *PluginRegistry::newInstance(std::string name, std::string& path) {
 	}
 
 	Plugin *instance = handle->constructor();
+
+	try {
+		instance->configure(config);
+		instance->start();
+	} catch (std::runtime_error err) {
+		logger.error("Error starting plugin %s: %s", name.c_str(), err.what());
+		handle->destructor(instance);
+		exit(1);
+	}
+
 	handle->instances.push_back(instance);
 	return instance;
 }

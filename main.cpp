@@ -66,8 +66,8 @@ bool tryLoadPersistence() {
 		return false;
 	}
 	std::string path = persistenceConfig["path"].as<std::string>();
-	PluginRegistry::i().newInstance("skeleton", path);
-	// PluginRegistry::i().cleanup();
+	Plugin *db = PluginRegistry::i().newInstance("mongo", path, persistenceConfig);
+	Cache::i().setPersistencePlugin(db);
 	return true;
 }
 
@@ -80,9 +80,12 @@ int main() {
 
 	// Set global log level
 	Logger::configure(config->get("logger"));
+	Logger logger;
 
 	// Try to load the mongo plugin and set up persistence
-	tryLoadPersistence();
+	if(!tryLoadPersistence()) {
+		logger.warn("No persistence provider loaded");
+	}
 
 	// Setup the event loop & http router
 	loop = new Loop(config->get("server"), new HttpRouter);

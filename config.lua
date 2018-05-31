@@ -17,8 +17,7 @@ Config "logger" {
 }
 
 Config "persistence" {
-	path="./plugins/default/skeleton/plugin_skeleton.so",
-	-- path="./plugins/default/mongo/plugin_mongo.so",
-	connectionString="mongodb://database:27017",
-	database="admin"
+	path="./plugins/default/mongo/plugin_mongo.so",
+	connectionString="mongodb://localhost:27017",
+	database="neve"
 }

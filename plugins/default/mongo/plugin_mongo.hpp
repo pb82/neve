@@ -4,6 +4,7 @@
 #include <libmongoc-1.0/mongoc.h>
 
 #include "../../plugin.hpp"
+#include "../../../json/printer.hpp"
 
 #define PLUGIN_NAME "mongo"
 
@@ -25,9 +26,14 @@ public:
 	JSON::Value call(const std::string &intent, JSON::Value &args);
 
 private:
+	bool create(std::string collection, JSON::Value &data, JSON::Value *result);
+
 	// Parsed from the config
 	std::string connectionString;
 	std::string database;
+
+	// Most interactions with Mongo involve json
+	JSON::Printer printer;
 
 	// Mongodb connection object, will exist during the lifetime
 	// of the plugin

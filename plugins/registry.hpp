@@ -7,6 +7,7 @@
 #include <uv.h>
 
 #include "../logger/logger.hpp"
+#include "../json/value.hpp"
 #include "plugin.hpp"
 
 typedef Plugin *(*PluginNew)();
@@ -50,12 +51,12 @@ public:
 	 * of a shared library
 	 * @return A pointer to the plugin instance
 	 */
-	Plugin *newInstance(std::string name, std::string& path);
-	void cleanup();
+	Plugin *newInstance(std::string name, std::string& path, JSON::Value& config);
 
 private:
 	PluginHandle *getHandle(std::string name, std::string &path);
 	PluginHandle* createHandle(std::string &path);
+	void cleanup();
 
 	std::map<std::string, std::unique_ptr<PluginHandle>> handles;
 	PluginRegistry();
