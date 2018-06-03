@@ -7,8 +7,10 @@
 #include <map>
 
 #include "../json/value.hpp"
+#include "../json/printer.hpp"
 #include "../logger/logger.hpp"
 #include "../actions/action.hpp"
+#include "../http/base64.hpp"
 #include "../plugins/plugin.hpp"
 
 typedef std::map<std::string, std::unique_ptr<Action>> Actions;
@@ -35,9 +37,12 @@ public:
 private:
 	Cache();
 
+	void storeBackend(Action *action);
+
 	// Action definitions stored in memory
 	Actions cached;
 	Logger logger;
+	JSON::Printer printer;
 
 	// Points to the persistence plugin (default is
 	// mongodb). If not set actions are only cached

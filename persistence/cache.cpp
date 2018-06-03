@@ -13,7 +13,16 @@ Cache::~Cache() {
 void Cache::store(Action *action) {
 	std::lock_guard<std::mutex> guard(lock);
 	cached[action->name] = std::unique_ptr<Action>(action);
+	if (db) storeBackend(action);
+
 	logger.info("Action %s stored in cache", action->name.c_str());
+}
+
+void Cache::storeBackend(Action *action) {
+	std::string error;
+	if(!db->sysCall("storeAction", action, &error)) {
+		logger.error("Error storing action in database: %s", error.c_str());
+	}
 }
 
 void Cache::remove(std::string &name) {

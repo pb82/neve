@@ -41,7 +41,7 @@ void PluginMongo::configure(JSON::Value &config) {
 JSON::Value PluginMongo::call(const std::string &intent, JSON::Value &args) {
 	JSON::Object response = {{"success", false}};
 
-	if (intent.compare("insert") == 0) {
+	if (intent.compare("create") == 0) {
 		if (!args["collection"].is(JSON::JSON_STRING)) {
 			throw PluginError("`collection' must be a string");
 		}
@@ -57,7 +57,7 @@ JSON::Value PluginMongo::call(const std::string &intent, JSON::Value &args) {
 		return response;
 	}
 
-	response["message"] = "Unkown intent";
+	response["result"] = "Unkown intent";
 	return response;
 }
 
@@ -101,4 +101,43 @@ bool PluginMongo::create(std::string collection, JSON::Value &data, JSON::Value 
 	bson_destroy(doc);
 
 	return true;
+}
+
+bool PluginMongo::sysCall(std::string intent, void *data, std::string *error) {
+	if(intent.compare("storeAction") == 0) {
+		return storeAction((Action *) data, error);
+	}
+
+	return false;
+}
+
+bool PluginMongo::storeAction(Action *data, std::string *error) {
+	bson_oid_t oid;
+	bson_error_t err;
+	bson_t *doc = bson_new();
+	bool success = false;
+
+	bson_oid_init(&oid, nullptr);
+	BSON_APPEND_OID(doc, "_id", &oid);
+	BSON_APPEND_UTF8(doc, "name", data->name.c_str());
+	BSON_APPEND_INT32(doc, "timeout", data->timeout);
+	BSON_APPEND_INT32(doc, "memory", data->memory);
+	BSON_APPEND_INT32(doc, "size", data->size);
+	BSON_APPEND_BINARY(doc, "bytecode", BSON_SUBTYPE_BINARY,
+		(const uint8_t *) data->bytecode.c_str(), data->size
+	);
+
+	// Get the actions collection
+	mongoc_collection_t *c = mongoc_client_get_collection(client,
+		database.c_str(), "actions");
+
+	if (!mongoc_collection_insert_one(c, doc, nullptr, nullptr, &err)) {
+		error->append(err.message);
+	} else {
+		success = true;
+	}
+
+	mongoc_collection_destroy(c);
+	bson_destroy(doc);
+	return success;
 }

@@ -74,6 +74,18 @@ public:
 	 * @return JSON::Value call result
 	 */
 	virtual JSON::Value call(const std::string& intent, JSON::Value& args) = 0;
+
+	/**
+	 * @brief sysCall Called from the server, nevera a script
+	 * Plugins can implement sysCall if they manage system resources (like actions)
+	 * directly.
+	 * @param intent The type of work
+	 * @param data Pointer to a system resource
+	 * @return true if the call was successful
+	 */
+	virtual bool sysCall(const std::string intent, void *data, std::string *error) {
+		return false;
+	}
 };
 
 #endif // PLUGIN_H

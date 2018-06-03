@@ -67,7 +67,7 @@ bool tryLoadPersistence() {
 	}
 	std::string path = persistenceConfig["path"].as<std::string>();
 	Plugin *db = PluginRegistry::i().newInstance("mongo", path, persistenceConfig);
-	Cache::i().setPersistencePlugin(db);
+	Cache::i().setPersistencePlugin((SystemStorage *) db);
 	return true;
 }
 
