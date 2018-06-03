@@ -7,6 +7,7 @@ std::string PluginMongo::name() const {
 PluginMongo::~PluginMongo() {
 	if (db) mongoc_database_destroy(db);
 	if (client) mongoc_client_destroy(client);
+	mongoc_cleanup();
 }
 
 void PluginMongo::start() {
@@ -134,10 +135,42 @@ bool PluginMongo::storeAction(Action *data, std::string *error) {
 	if (!mongoc_collection_insert_one(c, doc, nullptr, nullptr, &err)) {
 		error->append(err.message);
 	} else {
+		ensureIndex("actions", "name");
 		success = true;
 	}
 
 	mongoc_collection_destroy(c);
 	bson_destroy(doc);
 	return success;
+}
+
+void PluginMongo::ensureIndex(const char *col, const char *prop) {
+	bson_t keys;
+	bson_error_t err;
+	bson_init(&keys);
+	BSON_APPEND_INT32(&keys, prop, 1);
+
+	char *idx = mongoc_collection_keys_to_index_string(&keys);
+
+	// http://mongoc.org/libmongoc/current/create-indexes.html
+	// https://docs.mongodb.com/manual/reference/command/createIndexes/
+	bson_t *cmd = BCON_NEW(
+		"createIndexes",
+		BCON_UTF8(col),
+		"indexes",
+		"[",
+		"{",
+		"key",
+		BCON_DOCUMENT(&keys),
+		"name",
+		BCON_UTF8(idx),
+		"unique",
+		BCON_BOOL(true),
+		"}",
+		"]"
+	);
+
+	mongoc_database_write_command_with_opts(db, cmd, nullptr, nullptr, &err);
+	bson_destroy(cmd);
+	bson_free(idx);
 }

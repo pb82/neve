@@ -7,6 +7,8 @@
 #include "../../../json/printer.hpp"
 #include "../../../actions/action.hpp"
 
+#include <iostream>
+
 #define PLUGIN_NAME "mongo"
 
 /**
@@ -49,7 +51,7 @@ private:
 	 * @param col Collection to create the index in
 	 * @param property The property the index should apply to
 	 */
-	void ensureIndex(mongoc_collection_t *col, std::string property);
+	void ensureIndex(const char *col, const char *prop);
 
 	// Parsed from the config
 	std::string connectionString;
