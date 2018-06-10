@@ -27,6 +27,14 @@ public:
 	 */
 	void post(const char *route, MatchCallback cb);
 
+    /**
+     * @brief del Register a DELETE request handler
+     * @param route The path pattern to register the handler for
+     * @param cb The callback invoked when the pattern matches the
+     * current path
+     */
+    void del(const char *route, MatchCallback cb);
+
 	/**
 	 * @brief run Run the router and try to match the given path agains
 	 * all patterns

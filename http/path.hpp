@@ -14,8 +14,9 @@
 typedef std::function<bool(HttpRequest *request, void **data)> MatchCallback;
 
 enum HttpMethod {
+    DELETE  = 0,
 	GET		= 1,
-	POST	= 3
+    POST	= 3
 };
 
 /**

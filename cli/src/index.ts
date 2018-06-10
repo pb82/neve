@@ -11,6 +11,7 @@ import createAction from "./commands/create-action";
 import {AxiosError} from "axios";
 import listActions from "./commands/list-actions";
 import runAction from "./commands/run-action";
+import getAction from "./commands/get-action";
 
 function logSuccess(result: any) {
     info("Operation successful");
@@ -93,6 +94,15 @@ function main() {
         .description("Run action")
         .action(name => {
             runAction(name, config(program))
+                .then(logSuccess)
+                .catch(logError);
+        });
+
+    program
+        .command("get-action <name>")
+        .description("Get action details")
+        .action(name => {
+            getAction(name, config(program))
                 .then(logSuccess)
                 .catch(logError);
         });

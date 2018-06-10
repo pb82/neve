@@ -13,7 +13,7 @@ Config "server" {
 }
 
 Config "logger" {
-	level = LogLevel.Info
+	level = LogLevel.Debug
 }
 
 Config "persistence" {

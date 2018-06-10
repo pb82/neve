@@ -8,6 +8,10 @@ void HttpRouter::post(const char *route, MatchCallback cb) {
 	registerHandler(POST, route, cb);
 }
 
+void HttpRouter::del(const char *route, MatchCallback cb) {
+    registerHandler(DELETE, route, cb);
+}
+
 void HttpRouter::registerHandler(int method, const char *route, MatchCallback cb) {
 	Path *path = new Path(method, route, cb);
 	routes.push_back(std::unique_ptr<Path>(path));
