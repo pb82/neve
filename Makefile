@@ -58,6 +58,9 @@ jobs/run.o: jobs/run.cpp jobs/run.cpp
 jobs/get.o: jobs/get.cpp jobs/get.cpp
 	$(CXX) -g -c -fPIC jobs/get.cpp -o jobs/get.o
 
+jobs/delete.o: jobs/delete.cpp jobs/delete.cpp
+	$(CXX) -g -c -fPIC jobs/delete.cpp -o jobs/delete.o
+
 persistence/cache.o: persistence/cache.cpp persistence/cache.hpp
 	$(CXX) -g -c -fPIC persistence/cache.cpp -o persistence/cache.o
 
@@ -68,11 +71,11 @@ all: json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
 		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
-		jobs/get.o plugins/registry.o main.o
+		jobs/get.o jobs/delete.o plugins/registry.o main.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
 		http/path.o http/router.o http/response.o loop/loop.o vendor/http_parser.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
-		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
+		jobs/list.o jobs/run.o jobs/delete.o persistence/cache.o actions/sandbox.o \
 		jobs/get.o plugins/registry.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
@@ -100,9 +103,17 @@ tests: tests/main.o tests/t_http_path.cpp http/path.o
 
 MONGO_PLUGIN_CXX_ARGS = -I/usr/include/libmongoc-1.0 -I/usr/include/libbson-1.0 -lmongoc-1.0 -lbson-1.0
 
-plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp plugins/default/mongo/plugin_mongo.cpp json/printer.o
+plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp plugins/default/mongo/plugin_mongo.cpp json/printer.o \
+	plugins/default/mongo/intents/intent.hpp plugins/default/mongo/intents/create.hpp plugins/default/mongo/intents/create.cpp \
+	plugins/default/mongo/intents/list.hpp plugins/default/mongo/intents/list.cpp \
+	plugins/default/mongo/intents/read.hpp plugins/default/mongo/intents/read.cpp \
+	plugins/default/mongo/intents/delete.hpp plugins/default/mongo/intents/delete.cpp
 	$(CXX) -g -pipe -shared -fPIC $(MONGO_PLUGIN_CXX_ARGS) \
 	plugins/default/mongo/plugin_mongo.cpp json/printer.o \
+	plugins/default/mongo/intents/create.cpp \
+	plugins/default/mongo/intents/list.cpp \
+	plugins/default/mongo/intents/read.cpp \
+	plugins/default/mongo/intents/delete.cpp \
 	-o plugins/default/mongo/plugin_mongo.so
 
 plugins/default/skeleton/plugin_skeleton.so: plugins/default/skeleton/plugin_skeleton.hpp plugins/default/skeleton/plugin_skeleton.cpp

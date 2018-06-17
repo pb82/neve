@@ -17,40 +17,46 @@ typedef std::map<std::string, std::unique_ptr<Action>> Actions;
 
 class Cache {
 public:
-	static Cache &i();
-	~Cache();
+    static Cache &i();
+    ~Cache();
 
-	Cache(Cache const&) = delete;
-	void operator=(Cache const&) = delete;
+    Cache(Cache const&) = delete;
+    void operator=(Cache const&) = delete;
 
 
 
-	void store(Action *action);
-	void list(JSON::Array &actions);
-	void remove(std::string &name);
-	Action *read(std::string &name);
+    void store(Action *action);
+    void list(JSON::Array &actions);
+    bool remove(std::string &name);
+    Action *read(std::string &name);
 
-	void setPersistencePlugin(Plugin *plugin) {
-		this->db = plugin;
-	}
+    void setPersistencePlugin(Plugin *plugin) {
+        this->db = plugin;
+    }
 
 private:
-	Cache();
+    Cache();
 
-	void storeBackend(Action *action);
+    void storeBackend(Action *action);
+    bool deleteBackend(std::string &name);
+    void listBackend();
 
-	// Action definitions stored in memory
-	Actions cached;
-	Logger logger;
-	JSON::Printer printer;
+    // Action definitions stored in memory
+    Actions cached;
+    Logger logger;
+    JSON::Printer printer;
 
-	// Points to the persistence plugin (default is
-	// mongodb). If not set actions are only cached
-	// in memory
-	Plugin *db = nullptr;
+    // Points to the persistence plugin (default is
+    // mongodb). If not set actions are only cached
+    // in memory
+    Plugin *db = nullptr;
 
-	// Some actions of the cache need to be synchronized
-	std::mutex lock;
+    // Some actions of the cache need to be synchronized
+    std::mutex lock;
+
+    // Indicates that the cache is outdated and needs to be repopulated
+    // before running a list operation
+    bool dirty = true;
 };
 
 #endif // CACHE_H

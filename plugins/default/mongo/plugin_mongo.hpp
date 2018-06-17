@@ -2,12 +2,17 @@
 #define PLUGIN_MONGO_H
 
 #include <libmongoc-1.0/mongoc.h>
+#include <memory>
+#include <map>
 
 #include "../../plugin.hpp"
 #include "../../../json/printer.hpp"
 #include "../../../actions/action.hpp"
 
-#include <iostream>
+#include "intents/create.hpp"
+#include "intents/read.hpp"
+#include "intents/delete.hpp"
+#include "intents/list.hpp"
 
 #define PLUGIN_NAME "mongo"
 
@@ -28,23 +33,17 @@ public:
     void start();
     JSON::Value call(const std::string &intent, JSON::Value &args);
 
-    bool sysCall(std::string intent, void *in, void **out, std::string *error);
+    bool sysCall(std::string intent, void *in, void *out, std::string *error);
 
 private:
+    // call handlers
     bool create(std::string collection, JSON::Value &data, JSON::Value *result);
 
-    /**
-     * @brief storeAction Store an action in the database
-     * Used by sysCall to store a given action in the database including it's
-     * bytecode in binary format.
-     * @param data A pointer to the action to store
-     * @param error A pointer to a string where the error message will be stored
-     * should there be one
-     * @return true if the action is stored successfully
-     */
+    // sysCall handlers
     bool storeAction(Action *data, std::string *error);
     bool deleteAction(Action *data, std::string *error);
-    bool readAction(std::string *name, void **out, std::string* error);
+    bool readAction(std::string *name, void *out, std::string* error);
+    bool listActions(void *out, std::string* error);
 
     /**
      * @brief ensureIndex Creates an index
@@ -66,6 +65,8 @@ private:
     // of the plugin
     mongoc_client_t *client = nullptr;
     mongoc_database_t *db = nullptr;
+
+    std::map<std::string, std::unique_ptr<Intent>> intents;
 };
 
 // Creates the entrypoint for the server to create an instance

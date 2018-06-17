@@ -83,7 +83,7 @@ public:
      * @param data Pointer to a system resource
      * @return true if the call was successful
      */
-    virtual bool sysCall(std::string intent, void *in, void **out, std::string *error) {
+    virtual bool sysCall(std::string intent, void *in, void *out, std::string *error) {
         return false;
     }
 };

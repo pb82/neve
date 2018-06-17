@@ -10,6 +10,7 @@
 #include "jobs/list.hpp"
 #include "jobs/run.hpp"
 #include "jobs/get.hpp"
+#include "jobs/delete.hpp"
 #include "config/config.hpp"
 #include "persistence/cache.hpp"
 #include "plugins/registry.hpp"
@@ -59,12 +60,9 @@ void setupRoutes() {
         return true;
     });
 
-    Logger log;
-
-    loop->router()->del("/action/:id", [&log](HttpRequest *req, void **data) {
-        log.info("Delete action");
-        *data = nullptr;
-        return false;
+    loop->router()->del("/action/:id", [](HttpRequest *req, void **data) {
+        *data = new Delete;
+        return true;
     });
 }
 

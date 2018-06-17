@@ -18,6 +18,11 @@ void PluginMongo::start() {
     }
 
     db = mongoc_client_get_database(client, database.c_str());
+
+    intents["create"] = std::unique_ptr<Intent>(new IntentCreate(client, db));
+    intents["read"] = std::unique_ptr<Intent>(new IntentRead(client, db));
+    intents["delete"] = std::unique_ptr<Intent>(new IntentDelete(client, db));
+    intents["list"] = std::unique_ptr<Intent>(new IntentList(client, db));
 }
 
 void PluginMongo::configure(JSON::Value &config) {
@@ -104,7 +109,8 @@ bool PluginMongo::create(std::string collection, JSON::Value &data, JSON::Value 
     return true;
 }
 
-bool PluginMongo::sysCall(std::string intent, void *in, void **out, std::string *error) {
+bool PluginMongo::sysCall(std::string intent, void *in, void *out, std::string *error) {
+    /*
     if(intent.compare("storeAction") == 0) {
         return storeAction((Action *) in, error);
     }
@@ -113,14 +119,26 @@ bool PluginMongo::sysCall(std::string intent, void *in, void **out, std::string 
         return deleteAction((Action *) in, error);
     }
 
-    if (intent.compare("readAction") == 0) {
+    if (intent.compare("readAction") == 0 && out) {
         return readAction((std::string *) in, out, error);
     }
 
+    if (intent.compare("listActions") == 0 && out) {
+        return listActions(out, error);
+    }
+
     return false;
+    */
+
+    if (intents.find(intent) == intents.end()) {
+        error->append("Unknown intent");
+        return false;
+    }
+
+    return intents[intent].get()->sysCall(in, out, error);
 }
 
-bool PluginMongo::readAction(std::string *name, void **out, std::string *error) {
+bool PluginMongo::readAction(std::string *name, void *out, std::string *error) {
     bool success = false;
     const bson_t *doc;
 
@@ -128,8 +146,7 @@ bool PluginMongo::readAction(std::string *name, void **out, std::string *error) 
     bson_t *query = bson_new();
     BSON_APPEND_UTF8(query, "name", name->c_str());
 
-    Action *action = new Action;
-    *out = action;
+    Action *action = (Action *) out;
 
     // Get the requested collection and submit the query
     mongoc_collection_t *c = mongoc_client_get_collection(client, database.c_str(),
@@ -170,6 +187,55 @@ bool PluginMongo::readAction(std::string *name, void **out, std::string *error) 
     mongoc_collection_destroy(c);
     bson_destroy(query);
     return success;
+}
+
+bool PluginMongo::listActions(void *out, std::string *error) {
+    const bson_t *doc;
+    bson_t *query = bson_new();
+
+    std::vector<Action *>* actions = (std::vector<Action *>*) out;
+
+    // Get the requested collection and submit the query
+    mongoc_collection_t *c = mongoc_client_get_collection(client, database.c_str(),
+        "actions");
+
+    mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(c, query, nullptr, nullptr);
+
+    while (mongoc_cursor_next(cursor, &doc)) {
+        bson_iter_t it;
+        bson_iter_init(&it, doc);
+
+        Action *action = new Action;
+
+        bson_iter_find(&it, "name");
+        action->name = bson_iter_utf8(&it, nullptr);
+
+        bson_iter_init(&it, doc);
+        bson_iter_find(&it, "size");
+        action->size = bson_iter_int32(&it);
+
+        bson_iter_init(&it, doc);
+        bson_iter_find(&it, "timeout");
+        action->timeout = bson_iter_int32(&it);
+
+        bson_iter_init(&it, doc);
+        bson_iter_find(&it, "memory");
+        action->memory = bson_iter_int32(&it);
+
+        bson_iter_init(&it, doc);
+        bson_iter_find(&it, "bytecode");
+        const char *buffer;
+        uint32_t len;
+        bson_iter_binary(&it, nullptr, &len, (const uint8_t **) &buffer);
+        std::string bytecode(buffer, len);
+        action->bytecode = bytecode;
+        actions->push_back(action);
+    }
+
+    mongoc_cursor_destroy(cursor);
+    mongoc_collection_destroy(c);
+    bson_destroy(query);
+    return true;
 }
 
 bool PluginMongo::storeAction(Action *data, std::string *error) {
