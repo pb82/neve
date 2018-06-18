@@ -31,35 +31,15 @@ public:
     std::string name() const;
     void configure(JSON::Value &config);
     void start();
-    JSON::Value call(const std::string &intent, JSON::Value &args);
 
+    JSON::Value call(const std::string &intent, JSON::Value &args);
     bool sysCall(std::string intent, void *in, void *out, std::string *error);
 
 private:
-    // call handlers
-    bool create(std::string collection, JSON::Value &data, JSON::Value *result);
-
-    // sysCall handlers
-    bool storeAction(Action *data, std::string *error);
-    bool deleteAction(Action *data, std::string *error);
-    bool readAction(std::string *name, void *out, std::string* error);
-    bool listActions(void *out, std::string* error);
-
-    /**
-     * @brief ensureIndex Creates an index
-     * This function currently always creates an index for the given collection
-     * and property. It does not check whether the index already exists or not.
-     * @param col Collection to create the index in
-     * @param property The property the index should apply to
-     */
-    void ensureIndex(const char *col, const char *prop);
 
     // Parsed from the config
     std::string connectionString;
     std::string database;
-
-    // Most interactions with Mongo involve json
-    JSON::Printer printer;
 
     // Mongodb connection object, will exist during the lifetime
     // of the plugin
