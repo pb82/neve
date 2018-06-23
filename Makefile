@@ -1,6 +1,6 @@
 BIN = neve
 TESTBIN = unit
-LIB = -luv -llua -ldl
+LIB = -I/usr/include/libbson-1.0 -luv -llua -lbson-1.0
 
 .PHONY: first
 first:
@@ -61,6 +61,9 @@ jobs/get.o: jobs/get.cpp jobs/get.cpp
 jobs/delete.o: jobs/delete.cpp jobs/delete.cpp
 	$(CXX) -g -c -fPIC jobs/delete.cpp -o jobs/delete.o
 
+jobs/update.o: jobs/delete.cpp jobs/update.cpp
+	$(CXX) -g -c -fPIC jobs/update.cpp -o jobs/update.o
+
 persistence/cache.o: persistence/cache.cpp persistence/cache.hpp
 	$(CXX) -g -c -fPIC persistence/cache.cpp -o persistence/cache.o
 
@@ -71,12 +74,12 @@ all: json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
 		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
-		jobs/get.o jobs/delete.o plugins/registry.o main.o
+		jobs/get.o jobs/delete.o jobs/update.o plugins/registry.o main.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
 		http/path.o http/router.o http/response.o loop/loop.o vendor/http_parser.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
 		jobs/list.o jobs/run.o jobs/delete.o persistence/cache.o actions/sandbox.o \
-		jobs/get.o plugins/registry.o \
+		jobs/get.o jobs/update.o plugins/registry.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 # =============

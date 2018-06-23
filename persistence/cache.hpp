@@ -23,12 +23,11 @@ public:
     Cache(Cache const&) = delete;
     void operator=(Cache const&) = delete;
 
-
-
     void store(Action *action);
     void list(JSON::Array &actions);
     bool remove(std::string &name);
     Action *read(std::string &name);
+    bool update(Action *action);
 
     void setPersistencePlugin(Plugin *plugin) {
         this->db = plugin;
@@ -40,6 +39,7 @@ private:
     void storeBackend(Action *action);
     bool deleteBackend(std::string &name);
     void listBackend();
+    bool updateBackend(Action *action);
 
     // Action definitions stored in memory
     Actions cached;

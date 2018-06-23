@@ -19,10 +19,10 @@ void PluginMongo::start() {
 
     db = mongoc_client_get_database(client, database.c_str());
 
-    intents["create"] = std::unique_ptr<Intent>(new IntentCreate(client, db));
-    intents["read"] =   std::unique_ptr<Intent>(new IntentRead(client, db));
-    intents["delete"] = std::unique_ptr<Intent>(new IntentDelete(client, db));
-    intents["list"] =   std::unique_ptr<Intent>(new IntentList(client, db));
+    intents["create"]   = std::unique_ptr<Intent>(new IntentCreate(client, db));
+    intents["read"]     = std::unique_ptr<Intent>(new IntentRead(client, db));
+    intents["delete"]   = std::unique_ptr<Intent>(new IntentDelete(client, db));
+    intents["list"]     = std::unique_ptr<Intent>(new IntentList(client, db));
 }
 
 void PluginMongo::configure(JSON::Value &config) {

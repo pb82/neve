@@ -22,6 +22,11 @@ bool Cache::remove(std::string &name) {
     return deleteBackend(name);
 }
 
+bool Cache::update(Action *action) {
+    std::lock_guard<std::mutex> guard(lock);
+    return updateBackend(action);
+}
+
 Action *Cache::read(std::string &name) {
     if (cached.find(name) != cached.end()) {
         return cached[name].get();
@@ -100,3 +105,6 @@ bool Cache::deleteBackend(std::string &name) {
     }
 }
 
+bool Cache::updateBackend(Action *action) {
+    return false;
+}

@@ -6,17 +6,18 @@
 
 namespace JSON {
     class Printer {
-    public:		
+    public:
         void print(const Value val, std::ostringstream& out);
         std::string print(const Value val);
 
         virtual ~Printer() { }
 
     protected:
-		void dispatchType(const Value &val, std::ostringstream &out);
+        void dispatchType(const Value &val, std::ostringstream &out);
         void printNumber(const Value &val, std::ostringstream &out);
         void printBoolean(const Value &val, std::ostringstream &out);
         void printString(const Value &val, std::ostringstream &out);
+        void printBinary(const Value &val, std::ostringstream &out);
 
         /**
           * Allow to overwrite the formatting of Object and

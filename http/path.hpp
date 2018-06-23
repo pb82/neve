@@ -15,8 +15,9 @@ typedef std::function<bool(HttpRequest *request, void **data)> MatchCallback;
 
 enum HttpMethod {
     DELETE  = 0,
-	GET		= 1,
-    POST	= 3
+    GET		= 1,
+    POST	= 3,
+    PUT     = 4
 };
 
 /**
@@ -25,13 +26,13 @@ enum HttpMethod {
  * A fragment can be either a variable or a constant
  */
 struct Fragment {
-	// Make it copyable for convenience
-	Fragment& operator=(const Fragment& other);
+    // Make it copyable for convenience
+    Fragment& operator=(const Fragment& other);
 
-	// Value of the fragment and a boolean indicating if it's a
-	// variable name or literal
-	bool isVariable = false;
-	std::string value;
+    // Value of the fragment and a boolean indicating if it's a
+    // variable name or literal
+    bool isVariable = false;
+    std::string value;
 };
 
 /**
@@ -44,36 +45,36 @@ struct Fragment {
  */
 class Pattern {
 public:
-	Pattern() { }
+    Pattern() { }
 
-	void parse(std::string path, JSON::Object *params = nullptr);
+    void parse(std::string path, JSON::Object *params = nullptr);
 
-	/**
-	 * @brief next Read the next fragment, incrementing the index
-	 * @param fragment A reference to a fragment that will be filled
-	 * with the values of the next fragment
-	 * @return true if there is a next fragment
-	 */
-	bool next(Fragment &fragment);
+    /**
+     * @brief next Read the next fragment, incrementing the index
+     * @param fragment A reference to a fragment that will be filled
+     * with the values of the next fragment
+     * @return true if there is a next fragment
+     */
+    bool next(Fragment &fragment);
 
-	/**
-	 * @brief reset Reset index to zero
-	 */
-	void reset();
-	int size() const;
+    /**
+     * @brief reset Reset index to zero
+     */
+    void reset();
+    int size() const;
 private:
-	/**
-	 * @brief parseQuery Parse query string
-	 * Parses the query part of an URL (the part after the ? in /a/b?c=d) and
-	 * stores the key-value pairs in params
-	 * @param path The URL for wich to parse the query string
-	 * @param params The map to store the key value pairs in
-	 */
-	void parseQuery(std::string &path, JSON::Object &params);
+    /**
+     * @brief parseQuery Parse query string
+     * Parses the query part of an URL (the part after the ? in /a/b?c=d) and
+     * stores the key-value pairs in params
+     * @param path The URL for wich to parse the query string
+     * @param params The map to store the key value pairs in
+     */
+    void parseQuery(std::string &path, JSON::Object &params);
 
-	std::ostringstream stream;
-	std::vector<Fragment> fragments;
-	int index = 0;
+    std::ostringstream stream;
+    std::vector<Fragment> fragments;
+    int index = 0;
 };
 
 /**
@@ -83,35 +84,35 @@ private:
  */
 class Path {
 public:
-	Path(int method, std::string mask, MatchCallback cb);
-	~Path();
+    Path(int method, std::string mask, MatchCallback cb);
+    ~Path();
 
-	/**
-	 * @brief match Matches the given path against the pattern and stores
-	 * all path variables it encounters in the 'vars' argument.
-	 * @param path The Http Method of the request
-	 * @param path The path to match against
-	 * @param vars (optional) The path params map
-	 * @return true if the path matches the pattern
-	 */
-	bool match(HttpRequest *request);
+    /**
+     * @brief match Matches the given path against the pattern and stores
+     * all path variables it encounters in the 'vars' argument.
+     * @param path The Http Method of the request
+     * @param path The path to match against
+     * @param vars (optional) The path params map
+     * @return true if the path matches the pattern
+     */
+    bool match(HttpRequest *request);
 
-	/**
-	 * @brief invokeCallback Invokes the callback assigned to this pattern. This
-	 * should only be called if match returned true.
-	 * @param params A reference to a map containing the params read from the path
-	 * @param data A pointer to a pointer that can be initialized with the data to
-	 * be put on the job queue.
-	 * @return An integer representing the http status code to return to the client
-	 */
-	int invokeCallback(HttpRequest *request, void **data);
+    /**
+     * @brief invokeCallback Invokes the callback assigned to this pattern. This
+     * should only be called if match returned true.
+     * @param params A reference to a map containing the params read from the path
+     * @param data A pointer to a pointer that can be initialized with the data to
+     * be put on the job queue.
+     * @return An integer representing the http status code to return to the client
+     */
+    int invokeCallback(HttpRequest *request, void **data);
 private:
-	int method;
-	Pattern mask;
+    int method;
+    Pattern mask;
 
-	// Optional callback to be invoked when that patter matches
-	// agains a provided URL
-	MatchCallback cb;
+    // Optional callback to be invoked when that patter matches
+    // agains a provided URL
+    MatchCallback cb;
 };
 
 #endif // PATH_H
