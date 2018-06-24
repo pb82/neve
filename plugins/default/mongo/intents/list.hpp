@@ -1,6 +1,8 @@
 #ifndef INTENT_LIST_H
 #define INTENT_LIST_H
 
+#include <iostream>
+
 #include "intent.hpp"
 
 #include "../../../../actions/action.hpp"
@@ -15,7 +17,7 @@ public:
     bool call(JSON::Value &args, JSON::Value *result);
 private:
 
-    bool IntentList::parse(JSON::Value &args);
+    bool parse(JSON::Value &args);
     std::string collection;
     JSON::Value query;
 };

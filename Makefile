@@ -37,9 +37,6 @@ json/parser.o: json/parser.cpp json/parser.hpp
 json/printer.o: json/printer.cpp json/printer.hpp
 	$(CXX) -g -c -fPIC json/printer.cpp -o json/printer.o
 
-json/bsonImporter.o: json/bsonImporter.cpp json/bsonImporter.hpp
-	$(CXX) -g -c -fPIC json/bsonImporter.cpp -o json/bsonImporter.o
-
 config/config.o: config/config.cpp config/config.hpp
 	$(CXX) -g -c -fPIC config/config.cpp -o config/config.o
 
@@ -76,13 +73,13 @@ plugins/registry.o: plugins/registry.cpp plugins/registry.hpp plugins/plugin.hpp
 all: json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
-		json/bsonImporter.o jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
+		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
 		jobs/get.o jobs/delete.o jobs/update.o plugins/registry.o main.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
 		http/path.o http/router.o http/response.o loop/loop.o vendor/http_parser.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
 		jobs/list.o jobs/run.o jobs/delete.o persistence/cache.o actions/sandbox.o \
-		json/bsonImporter.o jobs/get.o jobs/update.o plugins/registry.o \
+		jobs/get.o jobs/update.o plugins/registry.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 # =============

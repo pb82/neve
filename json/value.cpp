@@ -19,7 +19,6 @@ void Value::toBson(bson_t *doc) {
     }
 }
 
-
 void Value::toLua(lua_State *L, JSON::Value &val) {
     switch(val.getType()) {
     case JSON::JSON_NULL:
@@ -71,6 +70,82 @@ void Value::fromLua(lua_State *L) {
 
     // Pop the value after reading
     lua_pop(L, 1);
+}
+
+void Value::fromBson(bson_iter_t *it) {
+    fromBson(it, *this);
+}
+
+void Value::fromBson(bson_iter_t *it, Value &val, bool isArray) {
+    while (bson_iter_next(it)) {
+        const char *key = bson_iter_key(it);
+
+        switch(bson_iter_type(it)) {
+        case BSON_TYPE_NULL:
+            if (isArray) val.push_back(JSON::null);
+            else val[key] = JSON::null;
+            break;
+        case BSON_TYPE_UTF8:
+            {
+                uint32_t length;
+                const char *raw = bson_iter_utf8(it, &length);
+                std::string str(raw, length);
+                if (isArray) val.push_back(str);
+                else val[key] = str;
+                break;
+            }
+        case BSON_TYPE_INT32:
+        case BSON_TYPE_INT64:
+        case BSON_TYPE_DOUBLE:
+            if (isArray) val.push_back(bson_iter_as_double(it));
+            else val[key] = bson_iter_as_double(it);
+            break;
+        case BSON_TYPE_BOOL:
+            if (isArray) val.push_back(bson_iter_bool(it));
+            else val[key] = bson_iter_bool(it);
+            break;
+        case BSON_TYPE_BINARY:
+            {
+                uint32_t length;
+                const char *buffer;
+                bson_iter_binary(it, nullptr, &length, (const uint8_t **) &buffer);
+                std::string str(buffer, length);
+                if (isArray) val.push_back(str);
+                else val[key] = str;
+                break;
+            }
+        case BSON_TYPE_OID:
+            {
+                char str[BSON_OID_SIZE];
+                const bson_oid_t *oid = bson_iter_oid(it);
+                bson_oid_to_string(oid, str);
+                std::string oidStr = std::string(str, BSON_OID_SIZE);
+                if (isArray) val.push_back(oidStr);
+                else val[key] = oidStr;
+                break;
+            }
+        case BSON_TYPE_ARRAY:
+            {
+                bson_iter_t sub;
+                bson_iter_recurse(it, &sub);
+                JSON::Value arr = JSON::Array {};
+                fromBson(&sub, arr, true);
+                if (isArray) val.push_back(arr);
+                else val[key] = arr;
+                break;
+            }
+        case BSON_TYPE_DOCUMENT:
+            {
+                bson_iter_t sub;
+                bson_iter_recurse(it, &sub);
+                JSON::Value obj = JSON::Object {};
+                fromBson(&sub, val[key]);
+                if (isArray) val.push_back(obj);
+                else val[key] = obj;
+                break;
+            }
+        }
+    }
 }
 
 void Value::readLuaObject(lua_State *L, Value &obj, int tableindex) {

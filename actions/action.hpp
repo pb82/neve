@@ -24,6 +24,14 @@ struct Action {
         target["bytecode"] = JSON::Value(bytecode.c_str(),
                                          bytecode.size());
     }
+
+    void fromJson(JSON::Value &source) {
+        name = source["name"].as<std::string>();
+        size = source["size"].as<int>();
+        memory = source["memory"].as<int>();
+        timeout = source["timeout"].as<int>();
+        bytecode = source["bytecode"].as<std::string>();
+    }
 };
 
 #endif // ACTION_H

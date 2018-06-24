@@ -83,31 +83,36 @@ void Cache::storeBackend(Action *action) {
     if(!result["success"].as<bool>()) {
         logger.error("Database create failed for action %s", action->name);
     } else {
-        JSON::Printer printer;
-        logger.info("Result: %s", printer.print(result).c_str());
+        logger.info("Action %s stored in database", action->name.c_str());
     }
 }
 
 void Cache::listBackend() {
-    std::string error;
-    std::vector<Action *> stored;
-    /*
-    if(db->sysCall("list", nullptr, &stored, &error)) {
+    JSON::Value payload = JSON::Object {
+        {"collection", SYS_COL_ACTIONS}
+    };
+
+    JSON::Value result = db->call("list", payload);
+    if(!result["success"].as<bool>()) {
+        logger.error("Database list failed for action");
+    } else {
+        JSON::Array items = result["result"].as<JSON::Array>();
         cached.clear();
-        for (Action *action : stored) {
+
+        for (auto& item : items) {
+            Action *action = new Action;
+            action->fromJson(item);
             cached[action->name] = std::unique_ptr<Action>(action);
         }
+
         dirty = false;
         logger.debug("Cache repopulated successfully");
-    } else {
-        logger.error("Database list failed with error: %s", error.c_str());
     }
-    */
 }
 
 bool Cache::deleteBackend(std::string &name) {
-    std::string error;
     /*
+    std::string error;
     if (!db->sysCall("delete", &name, nullptr, &error)) {
         logger.error("Database delete failed with error: %s", error.c_str());
         return false;
@@ -116,6 +121,7 @@ bool Cache::deleteBackend(std::string &name) {
         return true;
     }
     */
+    return false;
 }
 
 bool Cache::updateBackend(Action *action) {

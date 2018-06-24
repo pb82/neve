@@ -11,6 +11,8 @@
 #include <lua.hpp>
 #include <libbson-1.0/bson.h>
 
+#define BSON_OID_SIZE 25
+
 namespace JSON {
     enum JsonType {
         JSON_STRING = 0,
@@ -149,6 +151,9 @@ namespace JSON {
         // Export any JSON::Value to BSON
         void toBson(bson_t *doc);
 
+        // Import BSON date into a JSON::Value
+        void fromBson(bson_iter_t *it);
+
         // Value access (and conversion)
         template <typename T> T as() const;
         template <typename T> T& asMutable();
@@ -161,6 +166,8 @@ namespace JSON {
 
         // Used internally for recursive exports
         void toLua(lua_State *L, Value &val);
+        void fromBson(bson_iter_t *it, Value &val, bool isArray=false);
+        void readBsonArray(bson_iter_t *it, Value &val);
 
         // The actual type of the value.
         JsonType type;
