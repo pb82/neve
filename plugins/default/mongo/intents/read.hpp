@@ -11,8 +11,6 @@ public:
         : Intent(client, db) { }
 
     ~IntentRead() { }
-
-    bool sysCall(void *in, void *out, std::string *error);
 };
 
 #endif // INTENT_READ_H

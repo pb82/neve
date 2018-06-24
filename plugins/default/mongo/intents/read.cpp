@@ -1,5 +1,6 @@
 #include "read.hpp"
 
+/*
 bool IntentRead::sysCall(void *in, void *out, std::string *error) {
     if (!in || !out) {
         error->append("argument error");
@@ -57,3 +58,4 @@ bool IntentRead::sysCall(void *in, void *out, std::string *error) {
     return success;
 
 }
+*/

@@ -10,6 +10,7 @@ void Value::toBson(bson_t *doc) {
     bson_init(doc);
 
     switch(this->getType()) {
+    case JSON_ARRAY:
     case JSON_OBJECT:
         writeBsonObject(doc, *this);
         return;
@@ -160,10 +161,13 @@ void Value::writeBsonObject(bson_t *doc, Value &val) {
                              value.as<std::string>().size());
             break;
         case EXT_BINARY:
+        {
+            std::string content = value.as<std::string>();
             bson_append_binary(doc, key.c_str(), key.size(), BSON_SUBTYPE_BINARY,
-                               (const uint8_t *) value.as<std::string>().c_str(),
-                               value.as<std::string>().size());
+                               (const uint8_t *) content.c_str(),
+                               content.size());
             break;
+        }
         case JSON_OBJECT:
             {
                 bson_t obj;

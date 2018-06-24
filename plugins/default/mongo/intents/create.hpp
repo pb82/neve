@@ -13,14 +13,10 @@ public:
     ~IntentCreate() { }
 
     bool call(JSON::Value &args, JSON::Value *result);
-    bool sysCall(void *in, void *, std::string *error);
 
 private:
     bool parse(JSON::Value &args);
-
-    // The collection parsed from the arguments object
     std::string collection;
-    std::string data;
 };
 
 #endif // INTENT_CREATE_H

@@ -1,8 +1,6 @@
 #ifndef INTENT_H
 #define INTENT_H
 
-#define SYS_COL_ACTIONS "actions"
-
 #include <libmongoc-1.0/mongoc.h>
 #include <string>
 
@@ -27,24 +25,29 @@ public:
         return false;
     }
 
-    /**
-     * @brief sysCall call from system to plugin. Used to implement
-     * persistence of system resources like actions
-     * @param in pointer to the argument system resource
-     * @param out pointer to the result system resource
-     * @param error pointer to a string that can be set in case
-     * of an error
-     * @return true if the call succeeded
-     */
-    virtual bool sysCall(void *in, void *out, std::string *error) {
-        return false;
-    }
-
 protected:
     // Get collection by name
     mongoc_collection_t *getCollection(const char *name) {
         return mongoc_client_get_collection(client,
                     mongoc_database_get_name(db), name);
+    }
+
+    /**
+     * @brief setOid Sets the _id field of a document
+     * Creates a new ObjectID and sets it as the _id field of a
+     * BSON document
+     * @param doc The document to set the ID on
+     * @param result A reference to a string. The generated ObjectID will
+     * be appended to that string.
+     */
+    void setOid(bson_t *doc, std::string &result) {
+        bson_oid_t oid;
+        bson_oid_init(&oid, nullptr);
+        BSON_APPEND_OID(doc, "_id", &oid);
+
+        char oidString[25];
+        bson_oid_to_string(&oid, oidString);
+        result.append(oidString);
     }
 
     /**

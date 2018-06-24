@@ -11,8 +11,6 @@ public:
         : Intent(client, db) { }
 
     ~IntentDelete() { }
-
-    bool sysCall(void *in, void *, std::string *error);
 };
 
 #endif // INTENT_DELETE_H

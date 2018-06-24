@@ -12,7 +12,12 @@ public:
 
     ~IntentList() { }
 
-    bool sysCall(void *in, void *out, std::string *error);
+    bool call(JSON::Value &args, JSON::Value *result);
+private:
+
+    bool IntentList::parse(JSON::Value &args);
+    std::string collection;
+    JSON::Value query;
 };
 
 #endif // INTENT_LIST_H

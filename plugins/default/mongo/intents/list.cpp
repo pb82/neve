@@ -1,5 +1,41 @@
 #include "list.hpp"
 
+bool IntentList::parse(JSON::Value &args) {
+    if (!args["collection"].is(JSON::JSON_STRING)) {
+        return false;
+    }
+
+    if (args["query"].is(JSON::JSON_OBJECT)) {
+        query = args["query"];
+    } else {
+        query = JSON::Object {};
+    }
+
+    collection = args["collection"].as<std::string>();
+    return true;
+}
+
+
+bool IntentList::call(JSON::Value &args, JSON::Value *result) {
+    if (!parse(args)) {
+        *result = "argument error";
+        return false;
+    }
+
+    bson_t queryDoc;
+    const bson_t *doc;
+    query.toBson(&queryDoc);
+
+    // Get the requested collection and submit the query
+    mongoc_collection_t *col = getCollection(SYS_COL_ACTIONS);
+    mongoc_cursor_t *cursor = mongoc_collection_find_with_opts(col, &queryDoc,
+                                                               nullptr, nullptr);
+
+
+
+}
+
+/*
 bool IntentList::sysCall(void *in, void *out, std::string *error) {
     const bson_t *doc;
     bson_t *query = bson_new();
@@ -46,3 +82,4 @@ bool IntentList::sysCall(void *in, void *out, std::string *error) {
     bson_destroy(query);
     return true;
 }
+*/

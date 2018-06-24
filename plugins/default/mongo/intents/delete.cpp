@@ -1,5 +1,5 @@
 #include "delete.hpp"
-
+/*
 bool IntentDelete::sysCall(void *in, void *, std::string *error) {
     if (!in) {
         error->append("argument error");
@@ -26,3 +26,4 @@ bool IntentDelete::sysCall(void *in, void *, std::string *error) {
     bson_destroy(query);
     return success;
 }
+*/

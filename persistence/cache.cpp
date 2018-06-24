@@ -36,6 +36,7 @@ Action *Cache::read(std::string &name) {
 
     std::string error;
     Action *action = new Action;
+    /*
     if (db->sysCall("read", &name, (void *) action, &error)) {
         // Update cache
         cached[name] = std::unique_ptr<Action>(action);
@@ -45,7 +46,7 @@ Action *Cache::read(std::string &name) {
         delete action;
         return nullptr;
     }
-
+    */
     return action;
 }
 
@@ -71,17 +72,26 @@ void Cache::list(JSON::Array &actions) {
 }
 
 void Cache::storeBackend(Action *action) {
-    std::string error;
-    if(!db->sysCall("create", action, nullptr, &error)) {
-        logger.error("Database create failed with error: %s", error.c_str());
+    JSON::Value payload = JSON::Object {
+        {"collection", SYS_COL_ACTIONS},
+        {"data", JSON::Object {}}
+    };
+
+    action->toJson(payload["data"]);
+    JSON::Value result = db->call("create", payload);
+
+    if(!result["success"].as<bool>()) {
+        logger.error("Database create failed for action %s", action->name);
     } else {
-        logger.debug("Action `%s' stored in database", action->name.c_str());
+        JSON::Printer printer;
+        logger.info("Result: %s", printer.print(result).c_str());
     }
 }
 
 void Cache::listBackend() {
     std::string error;
     std::vector<Action *> stored;
+    /*
     if(db->sysCall("list", nullptr, &stored, &error)) {
         cached.clear();
         for (Action *action : stored) {
@@ -92,10 +102,12 @@ void Cache::listBackend() {
     } else {
         logger.error("Database list failed with error: %s", error.c_str());
     }
+    */
 }
 
 bool Cache::deleteBackend(std::string &name) {
     std::string error;
+    /*
     if (!db->sysCall("delete", &name, nullptr, &error)) {
         logger.error("Database delete failed with error: %s", error.c_str());
         return false;
@@ -103,6 +115,7 @@ bool Cache::deleteBackend(std::string &name) {
         logger.debug("Action `%s' deleted from database", name.c_str());
         return true;
     }
+    */
 }
 
 bool Cache::updateBackend(Action *action) {

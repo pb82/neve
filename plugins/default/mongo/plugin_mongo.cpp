@@ -59,12 +59,3 @@ JSON::Value PluginMongo::call(const std::string &intent, JSON::Value &args) {
         {"result", result}
     };
 }
-
-bool PluginMongo::sysCall(std::string intent, void *in, void *out, std::string *error) {
-    if (intents.find(intent) == intents.end()) {
-        error->append("Unknown intent");
-        return false;
-    }
-
-    return intents[intent].get()->sysCall(in, out, error);
-}

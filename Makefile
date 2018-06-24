@@ -37,6 +37,9 @@ json/parser.o: json/parser.cpp json/parser.hpp
 json/printer.o: json/printer.cpp json/printer.hpp
 	$(CXX) -g -c -fPIC json/printer.cpp -o json/printer.o
 
+json/bsonImporter.o: json/bsonImporter.cpp json/bsonImporter.hpp
+	$(CXX) -g -c -fPIC json/bsonImporter.cpp -o json/bsonImporter.o
+
 config/config.o: config/config.cpp config/config.hpp
 	$(CXX) -g -c -fPIC config/config.cpp -o config/config.o
 
@@ -73,13 +76,13 @@ plugins/registry.o: plugins/registry.cpp plugins/registry.hpp plugins/plugin.hpp
 all: json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
-		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
+		json/bsonImporter.o jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
 		jobs/get.o jobs/delete.o jobs/update.o plugins/registry.o main.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
 		http/path.o http/router.o http/response.o loop/loop.o vendor/http_parser.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
 		jobs/list.o jobs/run.o jobs/delete.o persistence/cache.o actions/sandbox.o \
-		jobs/get.o jobs/update.o plugins/registry.o \
+		json/bsonImporter.o jobs/get.o jobs/update.o plugins/registry.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 # =============
@@ -106,13 +109,14 @@ tests: tests/main.o tests/t_http_path.cpp http/path.o
 
 MONGO_PLUGIN_CXX_ARGS = -I/usr/include/libmongoc-1.0 -I/usr/include/libbson-1.0 -lmongoc-1.0 -lbson-1.0
 
-plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp plugins/default/mongo/plugin_mongo.cpp json/printer.o \
+plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp \
+	plugins/default/mongo/plugin_mongo.cpp json/printer.o json/value.o \
 	plugins/default/mongo/intents/intent.hpp plugins/default/mongo/intents/create.hpp plugins/default/mongo/intents/create.cpp \
 	plugins/default/mongo/intents/list.hpp plugins/default/mongo/intents/list.cpp \
 	plugins/default/mongo/intents/read.hpp plugins/default/mongo/intents/read.cpp \
 	plugins/default/mongo/intents/delete.hpp plugins/default/mongo/intents/delete.cpp
 	$(CXX) -g -pipe -shared -fPIC $(MONGO_PLUGIN_CXX_ARGS) \
-	plugins/default/mongo/plugin_mongo.cpp json/printer.o \
+	plugins/default/mongo/plugin_mongo.cpp json/printer.o json/value.o \
 	plugins/default/mongo/intents/create.cpp \
 	plugins/default/mongo/intents/list.cpp \
 	plugins/default/mongo/intents/read.cpp \

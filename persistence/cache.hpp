@@ -13,6 +13,8 @@
 #include "../http/base64.hpp"
 #include "../plugins/plugin.hpp"
 
+#define SYS_COL_ACTIONS "actions"
+
 typedef std::map<std::string, std::unique_ptr<Action>> Actions;
 
 class Cache {

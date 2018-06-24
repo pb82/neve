@@ -33,7 +33,6 @@ public:
     void start();
 
     JSON::Value call(const std::string &intent, JSON::Value &args);
-    bool sysCall(std::string intent, void *in, void *out, std::string *error);
 
 private:
 
