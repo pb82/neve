@@ -32,22 +32,38 @@ Action *Cache::read(std::string &name) {
         return cached[name].get();
     }
 
-    logger.debug("Action `%s' not found in cache", name.c_str());
+    logger.debug("Action %s not found in cache", name.c_str());
 
-    std::string error;
-    Action *action = new Action;
-    /*
-    if (db->sysCall("read", &name, (void *) action, &error)) {
-        // Update cache
-        cached[name] = std::unique_ptr<Action>(action);
-        logger.debug("Action `%s' pulled from database", name.c_str());
-    } else {
-        logger.error("Database read failed with error: %s", error.c_str());
-        delete action;
+    JSON::Value payload = JSON::Object {
+        {"collection", SYS_COL_ACTIONS},
+        {"query", JSON::Object {{"name", name}}}
+    };
+
+    JSON::Value result = db->call("list", payload);
+
+    if (!result["success"].as<bool>()) {
+        logger.error("Database read failed");
         return nullptr;
+    } else if (!result["result"].is(JSON::JSON_ARRAY)) {
+        logger.error("Unexpected result type");
+        return nullptr;
+    } else {
+        try {
+            JSON::Array results = result["result"].as<JSON::Array>();
+            if (results.size() != 1) {
+                logger.error("Unexpected number of results: %d", results.size());
+                return nullptr;
+            }
+
+            Action *action = new Action;
+            action->fromJson(results.at(0));
+            cached[action->name] = std::unique_ptr<Action>(action);
+            return action;
+        } catch (std::runtime_error err) {
+            logger.error(err.what());
+            return nullptr;
+        }
     }
-    */
-    return action;
 }
 
 void Cache::list(JSON::Array &actions) {
@@ -94,7 +110,7 @@ void Cache::listBackend() {
 
     JSON::Value result = db->call("list", payload);
     if(!result["success"].as<bool>()) {
-        logger.error("Database list failed for action");
+        logger.error("Database list failed");
     } else {
         JSON::Array items = result["result"].as<JSON::Array>();
         cached.clear();

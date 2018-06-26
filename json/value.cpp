@@ -236,13 +236,21 @@ void Value::writeBsonObject(bson_t *doc, Value &val) {
                              value.as<std::string>().size());
             break;
         case EXT_BINARY:
-        {
-            std::string content = value.as<std::string>();
-            bson_append_binary(doc, key.c_str(), key.size(), BSON_SUBTYPE_BINARY,
+            {
+                std::string content = value.as<std::string>();
+                bson_append_binary(doc, key.c_str(), key.size(), BSON_SUBTYPE_BINARY,
                                (const uint8_t *) content.c_str(),
                                content.size());
-            break;
-        }
+                break;
+            }
+        case EXT_OID:
+            {
+                bson_oid_t oid;
+                std::string str = value.as<std::string>();
+                bson_oid_init_from_string(&oid, str.c_str());
+                bson_append_oid(doc, key.c_str(), key.size(), &oid);
+                break;
+            }
         case JSON_OBJECT:
             {
                 bson_t obj;

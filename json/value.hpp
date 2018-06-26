@@ -21,6 +21,7 @@ namespace JSON {
         JSON_ARRAY  = 3,
         JSON_OBJECT = 4,
         EXT_BINARY  = 5,
+        EXT_OID     = 6,
         JSON_NULL
     };
 
@@ -154,6 +155,14 @@ namespace JSON {
         // Import BSON date into a JSON::Value
         void fromBson(bson_iter_t *it);
 
+        // JSON String -> BSON Oid
+        void toBsonOid() {
+            if (is(JSON_STRING)) {
+                std::get<EXT_OID>(value) = std::get<JSON_STRING>(value);
+                type = EXT_OID;
+            }
+        }
+
         // Value access (and conversion)
         template <typename T> T as() const;
         template <typename T> T& asMutable();
@@ -180,6 +189,7 @@ namespace JSON {
             bool,
             Array,
             Object,
+            std::string,
             std::string
         > value;
     };
@@ -235,8 +245,11 @@ namespace JSON {
             // String -> String
             return std::get<JSON_STRING>(value);
         case EXT_BINARY:
-            // String -> String
+            // Binary -> String
             return std::get<EXT_BINARY>(value);
+        case EXT_OID:
+            // Oid -> String
+            return std::get<EXT_OID>(value);
         case JSON_NUMBER:
             // Number -> String
             return toString<double>(std::get<JSON_NUMBER>(value));

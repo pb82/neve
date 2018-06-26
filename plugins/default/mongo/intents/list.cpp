@@ -15,7 +15,6 @@ bool IntentList::parse(JSON::Value &args) {
     return true;
 }
 
-
 bool IntentList::call(JSON::Value &args, JSON::Value *result) {
     if (!parse(args)) {
         *result = "argument error";
@@ -25,6 +24,7 @@ bool IntentList::call(JSON::Value &args, JSON::Value *result) {
     bson_t queryDoc;
     const bson_t *doc;
     query.toBson(&queryDoc);
+
 
     // Get the requested collection and submit the query
     mongoc_collection_t *col = getCollection(collection.c_str());
