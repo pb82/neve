@@ -21,13 +21,10 @@ bool IntentRead::call(JSON::Value &args, JSON::Value *result) {
     }
 
     args["query"] = JSON::Object {{
-        "_id", id
+        "_id", JSON::Object {{ "$oid", id }}
     }};
 
-    args["query"]["_id"].toBsonOid();
-
     IntentList list(client, db);
-
     JSON::Value results;
     if (list.call(args, &results)) {
         *result = results.as<JSON::Array>()[0];

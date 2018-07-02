@@ -11,6 +11,14 @@ public:
         : Intent(client, db) { }
 
     ~IntentDelete() { }
+
+    bool call(JSON::Value &args, JSON::Value *result);
+
+private:
+    bool parse(JSON::Value &args);
+    std::string collection;
+    JSON::Value query;
+    JSON::Printer printer;
 };
 
 #endif // INTENT_DELETE_H

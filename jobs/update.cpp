@@ -15,12 +15,12 @@ void Update::execute() {
     }
 
     // Check if a name parameter is present, required to identify the action
-    if(getHttpRequest()->params.find("name") == getHttpRequest()->params.end()) {
+    if(getHttpRequest()->params.find("id") == getHttpRequest()->params.end()) {
         this->result = "argument error";
         this->code = 400;
         return;
     }
-    std::string name = getHttpRequest()->params["name"].as<std::string>();
+    std::string name = getHttpRequest()->params["id"].as<std::string>();
 
     // Get the action from the cache or database
     Action *currentAction = Cache::i().read(name);

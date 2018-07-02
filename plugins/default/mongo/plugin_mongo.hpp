@@ -13,6 +13,7 @@
 #include "intents/read.hpp"
 #include "intents/delete.hpp"
 #include "intents/list.hpp"
+#include "intents/update.hpp"
 
 #define PLUGIN_NAME "mongo"
 

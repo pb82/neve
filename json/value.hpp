@@ -21,7 +21,6 @@ namespace JSON {
         JSON_ARRAY  = 3,
         JSON_OBJECT = 4,
         EXT_BINARY  = 5,
-        EXT_OID     = 6,
         JSON_NULL
     };
 
@@ -143,6 +142,10 @@ namespace JSON {
             std::get<JSON_ARRAY>(value).push_back(val);
         }
 
+        void remove(const char *key) {
+            std::get<JSON_OBJECT>(value).erase(key);
+        }
+
         // Import Lua data into a JSON::Value
         void fromLua(lua_State *L);
 
@@ -154,14 +157,6 @@ namespace JSON {
 
         // Import BSON date into a JSON::Value
         void fromBson(bson_iter_t *it);
-
-        // JSON String -> BSON Oid
-        void toBsonOid() {
-            if (is(JSON_STRING)) {
-                std::get<EXT_OID>(value) = std::get<JSON_STRING>(value);
-                type = EXT_OID;
-            }
-        }
 
         // Value access (and conversion)
         template <typename T> T as() const;
@@ -247,9 +242,6 @@ namespace JSON {
         case EXT_BINARY:
             // Binary -> String
             return std::get<EXT_BINARY>(value);
-        case EXT_OID:
-            // Oid -> String
-            return std::get<EXT_OID>(value);
         case JSON_NUMBER:
             // Number -> String
             return toString<double>(std::get<JSON_NUMBER>(value));

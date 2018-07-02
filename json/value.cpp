@@ -31,6 +31,7 @@ void Value::toLua(lua_State *L, JSON::Value &val) {
         lua_pushnumber(L, val.as<double>());
         break;
     case JSON::JSON_STRING:
+    case JSON::EXT_BINARY:
         lua_pushstring(L, val.as<std::string>().c_str());
         break;
     case JSON::JSON_OBJECT:
@@ -241,14 +242,6 @@ void Value::writeBsonObject(bson_t *doc, Value &val) {
                 bson_append_binary(doc, key.c_str(), key.size(), BSON_SUBTYPE_BINARY,
                                (const uint8_t *) content.c_str(),
                                content.size());
-                break;
-            }
-        case EXT_OID:
-            {
-                bson_oid_t oid;
-                std::string str = value.as<std::string>();
-                bson_oid_init_from_string(&oid, str.c_str());
-                bson_append_oid(doc, key.c_str(), key.size(), &oid);
                 break;
             }
         case JSON_OBJECT:

@@ -3,8 +3,6 @@
 
 #include "intent.hpp"
 
-#include "../../../../actions/action.hpp"
-
 class IntentCreate : public Intent {
 public:
     IntentCreate(mongoc_client_t *client, mongoc_database_t *db)
@@ -16,7 +14,10 @@ public:
 
 private:
     bool parse(JSON::Value &args);
+    void createIndices();
+
     std::string collection;
+    JSON::Array indices;
 };
 
 #endif // INTENT_CREATE_H

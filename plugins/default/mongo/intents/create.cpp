@@ -9,8 +9,21 @@ bool IntentCreate::parse(JSON::Value &args) {
         return false;
     }
 
+    if (args["unique"].is(JSON::JSON_ARRAY)) {
+        indices = args["unique"].as<JSON::Array>();
+    }
+
     collection = args["collection"].as<std::string>();
     return true;
+}
+
+void IntentCreate::createIndices() {
+    for (const auto& val : indices) {
+        if (val.is(JSON::JSON_STRING)) {
+            std::string property = val.as<std::string>();
+            ensureUnique(collection.c_str(), property.c_str());
+        }
+    }
 }
 
 bool IntentCreate::call(JSON::Value &args, JSON::Value *result) {
@@ -38,6 +51,7 @@ bool IntentCreate::call(JSON::Value &args, JSON::Value *result) {
     // Cleanup resources
     mongoc_collection_destroy(col);
     bson_destroy(&doc);
+    createIndices();
     *result = oid;
     return true;
 }

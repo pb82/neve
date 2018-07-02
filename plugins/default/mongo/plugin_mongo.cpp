@@ -19,8 +19,10 @@ void PluginMongo::start() {
 
     db = mongoc_client_get_database(client, database.c_str());
 
+    // CRUDL handlers
     intents["create"]   = std::unique_ptr<Intent>(new IntentCreate(client, db));
     intents["read"]     = std::unique_ptr<Intent>(new IntentRead(client, db));
+    intents["update"]   = std::unique_ptr<Intent>(new IntentUpdate(client, db));
     intents["delete"]   = std::unique_ptr<Intent>(new IntentDelete(client, db));
     intents["list"]     = std::unique_ptr<Intent>(new IntentList(client, db));
 }
@@ -54,6 +56,10 @@ JSON::Value PluginMongo::call(const std::string &intent, JSON::Value &args) {
 
     JSON::Value result;
     bool success = intents[intent].get()->call(args, &result);
+
+    // The form of the reply is the same for every intent.
+    // If success is false then result will contain the error message
+    // Otherwise it will contain whatver the intent returned
     return JSON::Object {
         {"success", success},
         {"result", result}

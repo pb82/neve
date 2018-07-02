@@ -13,6 +13,7 @@ import listActions from "./commands/list-actions";
 import runAction from "./commands/run-action";
 import getAction from "./commands/get-action";
 import deleteAction from "./commands/delete-action";
+import updateAction from "./commands/update-action";
 
 function logSuccess(result: any) {
     info("Operation successful");
@@ -54,7 +55,9 @@ function main() {
         .version("CLI version: " + require("../package.json").version);
 
     program
-        .option("-f --file <file>", "File to upload");
+        .option("-f --file <file>", "File to upload")
+        .option("-t --timeout <timeout>", "Time limit (ms)")
+        .option("-m --memory <memory>", "Memory limit (kb)");
 
     program
         .command("ping")
@@ -77,6 +80,15 @@ function main() {
         .description("Create a new action")
         .action(name => {
             createAction(name, config(program))
+                .then(logSuccess)
+                .catch(logError);
+        });
+
+    program
+        .command("update-action <name>")
+        .description("Update existint action")
+        .action(name => {
+            updateAction(name, config(program))
                 .then(logSuccess)
                 .catch(logError);
         });

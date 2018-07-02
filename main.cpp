@@ -11,6 +11,7 @@
 #include "jobs/run.hpp"
 #include "jobs/get.hpp"
 #include "jobs/delete.hpp"
+#include "jobs/update.hpp"
 #include "config/config.hpp"
 #include "persistence/cache.hpp"
 #include "plugins/registry.hpp"
@@ -52,6 +53,11 @@ void setupRoutes() {
 
     loop->router()->get("/action/:id", [](HttpRequest *req, void **data) {
         *data = new Get;
+        return true;
+    });
+
+    loop->router()->put("/action/:id", [](HttpRequest *req, void **data) {
+        *data = new Update;
         return true;
     });
 

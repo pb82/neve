@@ -1,20 +1,25 @@
-#include "delete.hpp"
+#include "update.hpp"
 
-bool IntentDelete::parse(JSON::Value &args) {
+bool IntentUpdate::parse(JSON::Value &args) {
     if (!args["collection"].is(JSON::JSON_STRING)) {
         return false;
     }
 
-    if (!args["query"].is(JSON::JSON_OBJECT)) {
+    if (!args["data"].is(JSON::JSON_OBJECT)) {
         return false;
     }
 
+    if (args["query"].is(JSON::JSON_OBJECT)) {
+        query = args["query"];
+    } else {
+        query = JSON::Object {};
+    }
+
     collection = args["collection"].as<std::string>();
-    query = args["query"];
     return true;
 }
 
-bool IntentDelete::call(JSON::Value &args, JSON::Value *result) {
+bool IntentUpdate::call(JSON::Value &args, JSON::Value *result) {
     if (!parse(args)) {
         *result = "argument error";
         return false;
@@ -31,11 +36,15 @@ bool IntentDelete::call(JSON::Value &args, JSON::Value *result) {
         return false;
     }
 
+    bson_t doc;
     bson_t reply;
+    bson_error_t error;
+
+    args["data"].toBson(&doc);
     mongoc_collection_t *col = getCollection(collection.c_str());
-    if (!mongoc_collection_delete_many(col, &queryDoc, nullptr, &reply, &err)) {
+    if (!mongoc_collection_update_many(col, &queryDoc, &doc, nullptr, &reply, &error)) {
         mongoc_collection_destroy(col);
-        *result = err.message;
+        *result = error.message;
         return false;
     }
 

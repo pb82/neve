@@ -118,6 +118,7 @@ plugins/default/mongo/plugin_mongo.so: plugins/default/mongo/plugin_mongo.hpp \
 	plugins/default/mongo/intents/list.cpp \
 	plugins/default/mongo/intents/read.cpp \
 	plugins/default/mongo/intents/delete.cpp \
+	plugins/default/mongo/intents/update.cpp \
 	-o plugins/default/mongo/plugin_mongo.so
 
 plugins/default/skeleton/plugin_skeleton.so: plugins/default/skeleton/plugin_skeleton.hpp plugins/default/skeleton/plugin_skeleton.cpp

@@ -90,16 +90,17 @@ void Cache::list(JSON::Array &actions) {
 void Cache::storeBackend(Action *action) {
     JSON::Value payload = JSON::Object {
         {"collection", SYS_COL_ACTIONS},
-        {"data", JSON::Object {}}
+        {"data", JSON::Object {}},
+        {"unique", {"name"}}
     };
 
     action->toJson(payload["data"]);
     JSON::Value result = db->call("create", payload);
 
     if(!result["success"].as<bool>()) {
-        logger.error("Database create failed for action %s", action->name);
+        logger.error("%s", printer.print(result).c_str());
     } else {
-        logger.info("Action %s stored in database", action->name.c_str());
+        logger.debug("Action `%s' stored in database", action->name.c_str());
     }
 }
 
@@ -110,7 +111,7 @@ void Cache::listBackend() {
 
     JSON::Value result = db->call("list", payload);
     if(!result["success"].as<bool>()) {
-        logger.error("Database list failed");
+        logger.error("%s", printer.print(result).c_str());
     } else {
         JSON::Array items = result["result"].as<JSON::Array>();
         cached.clear();
@@ -121,25 +122,45 @@ void Cache::listBackend() {
             cached[action->name] = std::unique_ptr<Action>(action);
         }
 
+        logger.debug("Cache repopulated from database");
         dirty = false;
-        logger.debug("Cache repopulated successfully");
     }
 }
 
 bool Cache::deleteBackend(std::string &name) {
-    /*
-    std::string error;
-    if (!db->sysCall("delete", &name, nullptr, &error)) {
-        logger.error("Database delete failed with error: %s", error.c_str());
+    JSON::Value payload = JSON::Object {
+        {"collection", SYS_COL_ACTIONS},
+        {"query", JSON::Object {{"name", name}}}
+    };
+
+    JSON::Value result = db->call("delete", payload);
+
+    if(!result["success"].as<bool>()) {
+        logger.error("%s", printer.print(result).c_str());
         return false;
     } else {
-        logger.debug("Action `%s' deleted from database", name.c_str());
+        logger.debug("%s", printer.print(result).c_str());
         return true;
     }
-    */
-    return false;
 }
 
 bool Cache::updateBackend(Action *action) {
-    return false;
+    JSON::Value updated;
+    action->toJson(updated);
+
+    JSON::Value payload = JSON::Object {
+        {"collection", SYS_COL_ACTIONS},
+        {"query", JSON::Object {{"name", action->name}}},
+        {"data", JSON::Object {{ "$set", updated }}}
+    };
+
+    JSON::Value result = db->call("update", payload);
+
+    if(!result["success"].as<bool>()) {
+        logger.error("%s", printer.print(result).c_str());
+        return false;
+    } else {
+        logger.debug("%s", printer.print(result).c_str());
+        return true;
+    }
 }
