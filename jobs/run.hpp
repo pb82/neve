@@ -9,16 +9,17 @@
 
 class Run : public Job {
 public:
-	Run() : Job() { }
-	~Run();
+    Run() : Job() { }
+    ~Run();
 
-	void execute();
+    void execute();
 private:
-	bool parse(std::string *error);
+    bool parse(std::string *error);
+    bool block = true;
 
-	JSON::Parser parser;
-	JSON::Value args;
-	Logger logger;
+    JSON::Parser parser;
+    JSON::Value args;
+    Logger logger;
 };
 
 #endif // RUN_H

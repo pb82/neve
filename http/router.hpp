@@ -8,7 +8,6 @@
 #include "path.hpp"
 #include "request.hpp"
 
-
 class HttpRouter {
 public:
     /**
@@ -52,7 +51,7 @@ public:
      * Job to be run on the queue
      * @return true if a matching route was found and run
      */
-    bool run(HttpRequest *request, void **data) const;
+    RunType run(HttpRequest *request, void **data) const;
 private:
     void registerHandler(int method, const char *route, MatchCallback cb);
     std::vector<std::unique_ptr<Path>> routes;

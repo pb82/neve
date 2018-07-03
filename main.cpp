@@ -38,37 +38,40 @@ void setupRoutes() {
     // Http endpoints
     loop->router()->get("/ping", [](HttpRequest *req, void **data) {
         *data = new Ping;
-        return true;
+        return RT_Sync;
     });
 
     loop->router()->post("/action", [](HttpRequest *req, void **data) {
         *data = new Create;
-        return true;
+        return RT_Sync;
     });
 
     loop->router()->post("/action/:id", [](HttpRequest *req, void **data) {
         *data = new Run;
-        return true;
+
+        // Check if the --block flag is set
+        if (req->params.find("block") != req->params.end()) return RT_Sync;
+        else return RT_Async;
     });
 
     loop->router()->get("/action/:id", [](HttpRequest *req, void **data) {
         *data = new Get;
-        return true;
+        return RT_Sync;
     });
 
     loop->router()->put("/action/:id", [](HttpRequest *req, void **data) {
         *data = new Update;
-        return true;
+        return RT_Sync;
     });
 
     loop->router()->get("/action", [](HttpRequest *req, void **data) {
         *data = new List;
-        return true;
+        return RT_Sync;
     });
 
     loop->router()->del("/action/:id", [](HttpRequest *req, void **data) {
         *data = new Delete;
-        return true;
+        return RT_Sync;
     });
 }
 

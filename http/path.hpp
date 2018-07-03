@@ -10,8 +10,12 @@
 #include "../json/value.hpp"
 #include "request.hpp"
 
-// The callback invoked when a path matches
-typedef std::function<bool(HttpRequest *request, void **data)> MatchCallback;
+// Indicates how the result of a matching route should be interpreted
+enum RunType {
+    RT_Sync    = 1,
+    RT_Async   = 2,
+    RT_Error   = 3
+};
 
 enum HttpMethod {
     DELETE  = 0,
@@ -19,6 +23,9 @@ enum HttpMethod {
     POST	= 3,
     PUT     = 4
 };
+
+// The callback invoked when a path matches
+typedef std::function<RunType(HttpRequest *request, void **data)> MatchCallback;
 
 /**
  * @brief The Fragment struct
@@ -105,7 +112,7 @@ public:
      * be put on the job queue.
      * @return An integer representing the http status code to return to the client
      */
-    int invokeCallback(HttpRequest *request, void **data);
+    RunType invokeCallback(HttpRequest *request, void **data);
 private:
     int method;
     Pattern mask;

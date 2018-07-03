@@ -19,18 +19,24 @@ void Cache::store(Action *action) {
 bool Cache::remove(std::string &name) {
     std::lock_guard<std::mutex> guard(lock);
     cached.erase(name);
-    return deleteBackend(name);
+
+    if (db) return deleteBackend(name);
+    else return true;
 }
 
 bool Cache::update(Action *action) {
     std::lock_guard<std::mutex> guard(lock);
-    return updateBackend(action);
+
+    if (db) return updateBackend(action);
+    else return true;
 }
 
 Action *Cache::read(std::string &name) {
     if (cached.find(name) != cached.end()) {
         return cached[name].get();
     }
+
+    if (!db) return nullptr;
 
     logger.debug("Action %s not found in cache", name.c_str());
 
@@ -67,7 +73,7 @@ Action *Cache::read(std::string &name) {
 }
 
 void Cache::list(JSON::Array &actions) {
-    if (dirty) {
+    if (dirty && db) {
         listBackend();
     } else {
         logger.debug("Listing actions from cache");

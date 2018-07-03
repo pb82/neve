@@ -142,10 +142,6 @@ namespace JSON {
             std::get<JSON_ARRAY>(value).push_back(val);
         }
 
-        void remove(const char *key) {
-            std::get<JSON_OBJECT>(value).erase(key);
-        }
-
         // Import Lua data into a JSON::Value
         void fromLua(lua_State *L);
 

@@ -21,7 +21,7 @@ void HttpRouter::registerHandler(int method, const char *route, MatchCallback cb
     routes.push_back(std::unique_ptr<Path>(path));
 }
 
-bool HttpRouter::run(HttpRequest *request, void **data) const {
+RunType HttpRouter::run(HttpRequest *request, void **data) const {
     // Check every route to find one that matches
     for (const auto& route: routes) {
         if (route.get()->match(request)) {
@@ -31,5 +31,5 @@ bool HttpRouter::run(HttpRequest *request, void **data) const {
 
     // If no route matches return 404 - Not found
     *data = nullptr;
-    return false;
+    return RT_Error;
 }
