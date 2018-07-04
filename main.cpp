@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <iostream>
 
 #include "json/printer.hpp"
 #include "json/parser.hpp"
@@ -15,6 +16,8 @@
 #include "config/config.hpp"
 #include "persistence/cache.hpp"
 #include "plugins/registry.hpp"
+
+#include "jobs/uuid.hpp"
 
 // Globals
 Loop *loop = nullptr;

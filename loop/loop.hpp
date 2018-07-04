@@ -13,6 +13,7 @@
 #include "../http/response.hpp"
 #include "../jobs/job.hpp"
 #include "../config/config.hpp"
+#include "../jobs/uuid.hpp"
 
 class Loop {
 public:

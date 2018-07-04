@@ -8,11 +8,6 @@ bool Run::parse(std::string *error) {
         return false;
     }
 
-    // Check if --block was passed
-    if (getHttpRequest()->params.find("block") != getHttpRequest()->params.end()) {
-        this->block = true;
-    }
-
     // If no payload is sent, default the script arguments to an
     // empty object
     if (getHttpRequest()->body.size() == 0) {
@@ -43,8 +38,6 @@ void Run::execute() {
     // around it
     std::string name = getHttpRequest()->params["id"].as<std::string>();
     Action *action = Cache::i().read(name);
-    action->block = block;
-
     if (!action) {
         result = "No such action";
         code = 404;

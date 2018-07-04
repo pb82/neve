@@ -112,9 +112,22 @@ int Loop::onMessageComplete(http_parser *parser) {
     Job *job = nullptr;
 
     // Match the url against the router
-    if(router->run(request, (void **) &job)) {
+    RunType runType = router->run(request, (void **) &job);
+    if (runType == RT_Sync) {
+        job->setBlock(true);
         job->setHttpRequest(request);
         uv_queue_work(uv_default_loop(), job->getWorkRequest(), actionRun, actionDone);
+    }
+
+    else if (runType == RT_Async) {
+        // Generate a UUID and return it immediately. The UUID will be used
+        // to identify the result of the job when it is requested.
+        uint uuid = UUID::create();
+        job->setBlock(false);
+        job->setUUID(uuid);
+        JSON::Value val = uuid;
+        uv_queue_work(uv_default_loop(), job->getWorkRequest(), actionRun, actionDone);
+        writeResponse(200, request, val);
     }
 
     // Router returned false, so either the route was not found or the callback
@@ -188,7 +201,12 @@ void Loop::actionRun(uv_work_t *req) {
 
 void Loop::actionDone(uv_work_t *req, int) {
     Job *job = static_cast<Job *>(req->data);
-    writeResponse(job->getCode(), job->getHttpRequest(), job->getResult());
+
+    // Only write the response if the client was waiting (used the
+    // --block flag)
+    if (job->getBlock()) {
+        writeResponse(job->getCode(), job->getHttpRequest(), job->getResult());
+    }
 
     // Now we can get rid of the job itself (the httprequest will
     // be cleaned up after writing has ended

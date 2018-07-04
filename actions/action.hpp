@@ -16,9 +16,6 @@ struct Action {
     int memory = 0;
     int size = 0;
 
-    // Non serialized properties
-    bool block = true;
-
     void toJson(JSON::Value &target) {
         target["name"] = name;
         target["size"] = size;

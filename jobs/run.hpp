@@ -15,7 +15,6 @@ public:
     void execute();
 private:
     bool parse(std::string *error);
-    bool block = true;
 
     JSON::Parser parser;
     JSON::Value args;

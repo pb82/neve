@@ -7,9 +7,13 @@ function readFileAsJSON(path: string) : string {
 }
 
 export default function runAction(name: string, options: any) {
-    const url = options.url + "/action/" + name;
+    let url = options.url + "/action/" + name;
 
-    let payload = null;
+    if (options.block) {
+        url += "?block=true";
+    }
+
+    let payload: any = {};
 
     if (options.file && statSync(options.file).isFile()) {
         payload = readFileAsJSON(options.file);

@@ -46,23 +46,26 @@ actions/compiler.o: actions/compiler.cpp actions/compiler.hpp
 actions/sandbox.o: actions/sandbox.cpp actions/sandbox.hpp
 	$(CXX) -g -c -fPIC actions/sandbox.cpp -o actions/sandbox.o
 
-jobs/ping.o: jobs/ping.cpp jobs/ping.cpp
+jobs/ping.o: jobs/ping.cpp jobs/ping.hpp
 	$(CXX) -g -c -fPIC jobs/ping.cpp -o jobs/ping.o
 
-jobs/create.o: jobs/create.cpp jobs/create.cpp
+jobs/create.o: jobs/create.cpp jobs/create.hpp
 	$(CXX) -g -c -fPIC jobs/create.cpp -o jobs/create.o
 
-jobs/run.o: jobs/run.cpp jobs/run.cpp
+jobs/run.o: jobs/run.cpp jobs/run.hpp
 	$(CXX) -g -c -fPIC jobs/run.cpp -o jobs/run.o
 
-jobs/get.o: jobs/get.cpp jobs/get.cpp
+jobs/get.o: jobs/get.cpp jobs/get.hpp
 	$(CXX) -g -c -fPIC jobs/get.cpp -o jobs/get.o
 
-jobs/delete.o: jobs/delete.cpp jobs/delete.cpp
+jobs/delete.o: jobs/delete.cpp jobs/delete.hpp
 	$(CXX) -g -c -fPIC jobs/delete.cpp -o jobs/delete.o
 
-jobs/update.o: jobs/delete.cpp jobs/update.cpp
+jobs/update.o: jobs/update.cpp jobs/update.hpp
 	$(CXX) -g -c -fPIC jobs/update.cpp -o jobs/update.o
+
+jobs/uuid.o: jobs/uuid.cpp jobs/uuid.hpp
+	$(CXX) -g -c -fPIC jobs/uuid.cpp -o jobs/uuid.o
 
 persistence/cache.o: persistence/cache.cpp persistence/cache.hpp
 	$(CXX) -g -c -fPIC persistence/cache.cpp -o persistence/cache.o
@@ -73,13 +76,13 @@ plugins/registry.o: plugins/registry.cpp plugins/registry.hpp plugins/plugin.hpp
 all: json/printer.o json/parser.o logger/logger.o http/path.o \
 		loop/loop.o vendor/http_parser.o http/router.o http/response.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
-		jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
+		jobs/uuid.o jobs/list.o jobs/run.o persistence/cache.o actions/sandbox.o \
 		jobs/get.o jobs/delete.o jobs/update.o plugins/registry.o main.o
 	$(CXX) $(LIB) json/printer.o json/parser.o logger/logger.o \
 		http/path.o http/router.o http/response.o loop/loop.o vendor/http_parser.o \
 		json/value.o actions/compiler.o jobs/ping.o jobs/create.o config/config.o \
 		jobs/list.o jobs/run.o jobs/delete.o persistence/cache.o actions/sandbox.o \
-		jobs/get.o jobs/update.o plugins/registry.o \
+		jobs/uuid.o jobs/get.o jobs/update.o plugins/registry.o \
 		main.o -pipe -g -Wall -W -fPIC -o $(BIN)
 
 # =============

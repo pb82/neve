@@ -57,7 +57,8 @@ function main() {
     program
         .option("-f --file <file>", "File to upload")
         .option("-t --timeout <timeout>", "Time limit (ms)")
-        .option("-m --memory <memory>", "Memory limit (kb)");
+        .option("-m --memory <memory>", "Memory limit (kb)")
+        .option("-b --block", "Wait for result");
 
     program
         .command("ping")
