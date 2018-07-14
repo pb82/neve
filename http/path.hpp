@@ -12,9 +12,17 @@
 
 // Indicates how the result of a matching route should be interpreted
 enum RunType {
+    // Client waits for response
     RT_Sync    = 1,
+
+    // No wait, server returns a token
     RT_Async   = 2,
-    RT_Error   = 3
+
+    // Client waits until the job with the given token is finished
+    RT_Delayed = 3,
+
+    // Error state
+    RT_Error   = 4
 };
 
 enum HttpMethod {

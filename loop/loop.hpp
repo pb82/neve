@@ -14,6 +14,7 @@
 #include "../jobs/job.hpp"
 #include "../config/config.hpp"
 #include "../jobs/uuid.hpp"
+#include "../actions/reactor.hpp"
 
 class Loop {
 public:

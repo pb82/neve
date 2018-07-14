@@ -123,11 +123,22 @@ int Loop::onMessageComplete(http_parser *parser) {
         // Generate a UUID and return it immediately. The UUID will be used
         // to identify the result of the job when it is requested.
         uint uuid = UUID::create();
+        logger.debug("Launching async job with uuid %d", uuid);
+
         job->setBlock(false);
         job->setUUID(uuid);
-        JSON::Value val = uuid;
-        uv_queue_work(uv_default_loop(), job->getWorkRequest(), actionRun, actionDone);
+
+        // Immediately return the UUID to the caller
+        JSON::Value val = 195111;
+        // uv_queue_work(uv_default_loop(), job->getWorkRequest(), actionRun, actionDone);
         writeResponse(200, request, val);
+    }
+
+    else if (runType == RT_Delayed) {
+        uint token = request->params["token"].as<uint>();
+        Reactor::i().placeCallback(token, [](Job *job) {
+            writeResponse(job->getCode(), job->getHttpRequest(), job->getResult());
+        });
     }
 
     // Router returned false, so either the route was not found or the callback
@@ -206,6 +217,8 @@ void Loop::actionDone(uv_work_t *req, int) {
     // --block flag)
     if (job->getBlock()) {
         writeResponse(job->getCode(), job->getHttpRequest(), job->getResult());
+    } else {
+        Reactor::i().placeResult(job);
     }
 
     // Now we can get rid of the job itself (the httprequest will

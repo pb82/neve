@@ -10,6 +10,7 @@
 
 #include <lua.hpp>
 #include <libbson-1.0/bson.h>
+#include <iostream>
 
 #define BSON_OID_SIZE 25
 
@@ -58,21 +59,25 @@ namespace JSON {
         // JSON_NUMBER
         Value(int val)
         : type(JSON_NUMBER) {
-            std::get<JSON_NUMBER>(value) = val;
+            std::cout << "int: %d" << val << std::endl;
+            std::get<JSON_NUMBER>(value) = static_cast<double>(val);
         }
 
         Value(long int val)
         : type(JSON_NUMBER) {
-            std::get<JSON_NUMBER>(value) = (int) val;
+            std::cout << "lint: %d" << val << std::endl;
+            std::get<JSON_NUMBER>(value) = static_cast<double>(val);
         }
 
         Value(unsigned int val)
         : type(JSON_NUMBER) {
-            std::get<JSON_NUMBER>(value) = (int) val;
+            std::cout << "uint: " << static_cast<double>(val) << std::endl;
+            std::get<JSON_NUMBER>(value) = val;
         }
 
         Value(double val)
         : type(JSON_NUMBER) {
+            std::cout << "dbl: %d" << val << std::endl;
             std::get<JSON_NUMBER>(value) = val;
         }
 

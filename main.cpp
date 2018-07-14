@@ -76,6 +76,11 @@ void setupRoutes() {
         *data = new Delete;
         return RT_Sync;
     });
+
+    loop->router()->get("/resolve/:token", [](HttpRequest *req, void **) {
+        if (req->params.find("token") == req->params.end()) return RT_Error;
+        else return RT_Delayed;
+    });
 }
 
 bool tryLoadPersistence() {
