@@ -59,25 +59,21 @@ namespace JSON {
         // JSON_NUMBER
         Value(int val)
         : type(JSON_NUMBER) {
-            std::cout << "int: %d" << val << std::endl;
             std::get<JSON_NUMBER>(value) = static_cast<double>(val);
         }
 
         Value(long int val)
         : type(JSON_NUMBER) {
-            std::cout << "lint: %d" << val << std::endl;
             std::get<JSON_NUMBER>(value) = static_cast<double>(val);
         }
 
         Value(unsigned int val)
         : type(JSON_NUMBER) {
-            std::cout << "uint: " << static_cast<double>(val) << std::endl;
             std::get<JSON_NUMBER>(value) = val;
         }
 
         Value(double val)
         : type(JSON_NUMBER) {
-            std::cout << "dbl: %d" << val << std::endl;
             std::get<JSON_NUMBER>(value) = val;
         }
 

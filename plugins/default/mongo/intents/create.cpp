@@ -44,6 +44,7 @@ bool IntentCreate::call(JSON::Value &args, JSON::Value *result) {
     // Insert the document
     if(!mongoc_collection_insert_one(col, &doc, nullptr, nullptr, &error)) {
         mongoc_collection_destroy(col);
+        bson_destroy(&doc);
         *result = error.message;
         return false;
     }

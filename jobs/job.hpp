@@ -32,6 +32,11 @@ public:
 
     void setHttpRequest(HttpRequest *const req) {
         this->httpRequest = req;
+
+        // Don't rely on the http request being still valid when the
+        // job is executed. Get a copy of the params.
+        this->params = req->params;
+        this->body = req->body;
     }
 
     HttpRequest *getHttpRequest() {
@@ -54,12 +59,16 @@ public:
         this->block = value;
     }
 
-    uint getUUID() {
+    std::string& getUUID() {
         return this->uuid;
     }
 
-    void setUUID(uint value) {
+    void setUUID(std::string value) {
         this->uuid = value;
+    }
+
+    void setParams(JSON::Object params) {
+        this->params = params;
     }
 
 protected:
@@ -68,13 +77,17 @@ protected:
     // Incoming HTTP request to be consumed by execute
     HttpRequest *httpRequest;
 
+    // Http params and body
+    JSON::Object params;
+    std::string body;
+
     // HTTP result and code to be set by execute
     JSON::Value result;
     int code = 500;
 
     // Wait for result or return immediately
     bool block = true;
-    uint uuid;
+    std::string uuid;
 };
 
 #endif // JOB_H

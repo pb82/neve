@@ -7,6 +7,8 @@
 #include "../json/parser.hpp"
 #include "../logger/logger.hpp"
 
+#include <iostream>
+
 class Run : public Job {
 public:
     Run() : Job() { }

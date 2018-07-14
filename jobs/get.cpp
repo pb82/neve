@@ -3,11 +3,11 @@
 Get::~Get() { }
 
 bool Get::parse(std::string *error) {
-    if (getHttpRequest()->params.find("id") == getHttpRequest()->params.end()) {
+    if (params.find("id") == params.end()) {
         error->append("Action id missing");
         return false;
     }
-    this->id = getHttpRequest()->params["id"].as<std::string>();
+    this->id = params["id"].as<std::string>();
     return true;
 }
 

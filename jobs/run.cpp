@@ -3,20 +3,20 @@
 Run::~Run() { }
 
 bool Run::parse(std::string *error) {
-    if (getHttpRequest()->params.find("id") == getHttpRequest()->params.end()) {
+    if (params.find("id") == params.end()) {
         error->append("Action id missing");
         return false;
     }
 
     // If no payload is sent, default the script arguments to an
     // empty object
-    if (getHttpRequest()->body.size() == 0) {
+    if (body.size() == 0) {
         args = JSON::Object{};
     } else {
         try {
             // Otherwise try to parse the provided payload and
             // use it as script args
-            parser.parse(args, getHttpRequest()->body);
+            parser.parse(args, body);
         } catch(JSON::ParseError err) {
             error->append(err.what());
             return false;
@@ -36,7 +36,7 @@ void Run::execute() {
 
     // Get the requested action from the cache and create a Sandbox
     // around it
-    std::string name = getHttpRequest()->params["id"].as<std::string>();
+    std::string name = params["id"].as<std::string>();
     Action *action = Cache::i().read(name);
     if (!action) {
         result = "No such action";

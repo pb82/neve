@@ -7,7 +7,7 @@ void Update::execute() {
 
     // Parse payload
     try {
-        parser.parse(payload, getHttpRequest()->body.c_str());
+        parser.parse(payload, body.c_str());
     } catch(JSON::ParseError err) {
         this->result = err.what();
         this->code = 400;
@@ -15,12 +15,12 @@ void Update::execute() {
     }
 
     // Check if a name parameter is present, required to identify the action
-    if(getHttpRequest()->params.find("id") == getHttpRequest()->params.end()) {
+    if(params.find("id") == params.end()) {
         this->result = "argument error";
         this->code = 400;
         return;
     }
-    std::string name = getHttpRequest()->params["id"].as<std::string>();
+    std::string name = params["id"].as<std::string>();
 
     // Get the action from the cache or database
     Action *currentAction = Cache::i().read(name);

@@ -8,10 +8,12 @@
 #include "../jobs/job.hpp"
 #include "../logger/logger.hpp"
 
-typedef std::function<void(Job *job)> ReactorCallback;
+struct AsyncResult;
+typedef std::function<void(int code, JSON::Value &result)> ReactorCallback;
 
 struct AsyncResult {
-    Job *job;
+    int code;
+    JSON::Value result;
     ReactorCallback callback;
 };
 
@@ -24,13 +26,13 @@ public:
     void operator=(Reactor const&) = delete;
 
     void placeResult(Job *job);
-    void placeCallback(uint uuid, ReactorCallback callback);
+    void placeCallback(std::string uuid, ReactorCallback callback);
 
 private:
     Reactor();
     Logger logger;
 
-    std::map<uint, AsyncResult> items;
+    std::map<std::string, AsyncResult> items;
     std::mutex lock;
 };
 

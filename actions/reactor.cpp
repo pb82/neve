@@ -11,29 +11,30 @@ Reactor &Reactor::i() {
 
 void Reactor::placeResult(Job *job) {
     std::lock_guard<std::mutex> guard(lock);
-    uint uuid = job->getUUID();
+    std::string uuid = job->getUUID();
 
     // A callback is already registered. Invoke it immediately
     if (items.find(uuid) != items.end()) {
         AsyncResult &result = items[uuid];
-        result.callback(job);
+        result.callback(result.code, result.result);
         items.erase(uuid);
         return;
     }
 
     AsyncResult result;
-    result.job = job;
+    result.code = job->getCode();
+    result.result = job->getResult();
     items[uuid] = result;
-    logger.debug("Async job with uuid %d finished", uuid);
+    logger.debug("Async job with uuid %s finished", uuid.c_str());
 }
 
-void Reactor::placeCallback(uint uuid, ReactorCallback callback) {
+void Reactor::placeCallback(std::string uuid, ReactorCallback callback) {
     std::lock_guard<std::mutex> guard(lock);
 
     // A job is already registered. Invoke the callback immediately
     if (items.find(uuid) != items.end()) {
         AsyncResult &result = items[uuid];
-        callback(result.job);
+        callback(result.code, result.result);
         items.erase(uuid);
         return;
     }
@@ -41,5 +42,5 @@ void Reactor::placeCallback(uint uuid, ReactorCallback callback) {
     AsyncResult result;
     result.callback = callback;
     items[uuid] = result;
-    logger.debug("Callback placed for job with uuid %d", uuid);
+    logger.debug("Callback placed for job with uuid %s", uuid.c_str());
 }

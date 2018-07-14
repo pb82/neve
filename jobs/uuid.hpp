@@ -1,11 +1,12 @@
 #ifndef UUID_H
 #define UUID_H
 
-#include <random>
+#include <libbson-1.0/bson.h>
+
+#include <string>
 
 namespace UUID {
-    static std::random_device r;
-    uint create();
+    std::string create();
 }
 
 #endif // UUID_H
