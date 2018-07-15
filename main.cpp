@@ -21,12 +21,10 @@
 
 // Globals
 Loop *loop = nullptr;
-Config *config = nullptr;
 
 // Organized cleanup
 void onSignal(int sig) {
     delete loop;
-    delete config;
     exit(sig);
 }
 
@@ -87,8 +85,8 @@ bool tryLoadPersistence() {
     // If the config file does not have a persistence section then
     // just return here. Actions will not be persisted but the cache
     // will still work
-    if (!config->has("persistence")) return false;
-    JSON::Value persistenceConfig = config->get("persistence");
+    if (!Config::i().has("persistence")) return false;
+    JSON::Value persistenceConfig = Config::i().get("persistence");
 
     if (!persistenceConfig["path"].is(JSON::JSON_STRING)) {
         return false;
@@ -103,11 +101,10 @@ int main() {
     // Cleanup handlers
     connectSignals();
 
-    config = new Config;
-    config->load("./config.lua");
+    Config::i().load("./config.lua");
 
     // Set global log level
-    Logger::configure(config->get("logger"));
+    Logger::configure(Config::i().get("logger"));
     Logger logger;
 
     // Try to load the mongo plugin and set up persistence
@@ -116,7 +113,7 @@ int main() {
     }
 
     // Setup the event loop & http router
-    loop = new Loop(config->get("server"), new HttpRouter);
+    loop = new Loop(Config::i().get("server"), new HttpRouter);
     setupRoutes();
 
     // Start server

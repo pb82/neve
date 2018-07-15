@@ -8,8 +8,8 @@
 #include "../json/value.hpp"
 
 enum ConfigType {
-	ServerConfig = 1,
-	PluginConfig
+    ServerConfig = 1,
+    PluginConfig
 };
 
 /**
@@ -20,10 +20,10 @@ enum ConfigType {
 class ConfigError : public std::runtime_error
 {
 public:
-	ConfigError(std::string message)
-		: std::runtime_error(message)
-	{
-	}
+    ConfigError(std::string message)
+        : std::runtime_error(message)
+    {
+    }
 };
 
 /**
@@ -34,29 +34,36 @@ public:
  */
 class Config {
 public:
-	Config();
-	~Config();
+    static Config& i();
+    ~Config();
 
-	// Load configuration from file
-	void load(const char *file);
+    Config(Config const&) = delete;
+    void operator=(Config const&) = delete;
 
-	// Get configuration for the given category
-	JSON::Value &get(const char *key, ConfigType type = ServerConfig);
-	bool has(const char *key, ConfigType type = ServerConfig);
+    // Load configuration from file
+    void load(const char *file);
+
+    // Get configuration for the given category
+    JSON::Value &get(const char *key, ConfigType type = ServerConfig);
+    JSON::Value &get(std::string &key, ConfigType type = ServerConfig);
+    bool has(const char *key, ConfigType type = ServerConfig);
+    bool has(std::string& key, ConfigType type = ServerConfig);
 
 private:
-	// Lua callbacks
-	static int config(lua_State *L);
-	static int plugin(lua_State *L);
-	static int store(lua_State *L);
+    Config();
 
-	lua_State *L;
-	const char* currentCategory;
-	ConfigType currentType = ServerConfig;
+    // Lua callbacks
+    static int config(lua_State *L);
+    static int plugin(lua_State *L);
+    static int store(lua_State *L);
 
-	// Stores the actual configuration categories
-	std::map<std::string, JSON::Value> serverConfig;
-	std::map<std::string, JSON::Value> pluginConfig;
+    lua_State *L;
+    const char* currentCategory;
+    ConfigType currentType = ServerConfig;
+
+    // Stores the actual configuration categories
+    std::map<std::string, JSON::Value> serverConfig;
+    std::map<std::string, JSON::Value> pluginConfig;
 };
 
 #endif // CONFIG_H

@@ -21,3 +21,9 @@ Config "persistence" {
 	connectionString="mongodb://localhost:27017",
 	database="neve"
 }
+
+Plugin "mongo" {
+	path="./plugins/default/mongo/plugin_mongo.so",
+	connectionString="mongodb://localhost:27017",
+	database="userdata"
+}

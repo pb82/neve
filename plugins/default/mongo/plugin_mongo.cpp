@@ -7,6 +7,13 @@ std::string PluginMongo::name() const {
 PluginMongo::~PluginMongo() {
     if (db) mongoc_database_destroy(db);
     if (client) mongoc_client_destroy(client);
+}
+
+void PluginMongo::globalInit() {
+    mongoc_init();
+}
+
+void PluginMongo::globalCleanup() {
     mongoc_cleanup();
 }
 

@@ -59,6 +59,20 @@ public:
     virtual void configure(JSON::Value &config) = 0;
 
     /**
+     * @brief globalInit Called once per handle to set up global state
+     * that all future instances of this plugni can share. May not be
+     * required for all plugins.
+     */
+    virtual void globalInit() { }
+
+    /**
+     * @brief globalCleanup Called once per handle to püerform global
+     * cleanup. The counterpart to `globalInit`. May not be required
+     * for all plugins.
+     */
+    virtual void globalCleanup() { }
+
+    /**
      * @brief start Start the plugin
      * The start function will be called after configure and is intended
      * to set up all resources required to run the plugin (db connections,

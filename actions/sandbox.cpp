@@ -3,6 +3,11 @@
 Sandbox::Sandbox(Action *action) : action(action) {
     L = luaL_newstate();
     loadLibraries();
+
+    // allow the Lua callback handlers to access the Sandbox
+    // and the longjmp environment
+    SET_THIS;
+    SET_ENV;
 }
 
 Sandbox::~Sandbox() {
@@ -35,6 +40,9 @@ void Sandbox::loadLibraries() {
     DISABLE_FN(LUA_OSLIBNAME,           "remove");
     DISABLE_FN(LUA_OSLIBNAME,           "setlocale");
     DISABLE_FN(LUA_OSLIBNAME,           "tmpname");
+
+    // Export the plugin call function
+    lua_register(L, "call", Sandbox::callPlugin);
 }
 
 RunCode Sandbox::run(JSON::Value &args, JSON::Value &result, std::string *msg) {
@@ -95,13 +103,65 @@ RunCode Sandbox::run(JSON::Value &args, JSON::Value &result, std::string *msg) {
 
     // Second call to actually run the main function
     if ((status = lua_pcall(L, 1, 1, 0)) != LUA_OK) {
+        std::cout << "error in main here" << std::endl;
+
         err = lua_tostring(L, -1);
         if (err) { *msg = err; } else { *msg = "Error in main"; }
         return ErrMain;
     }
 
+    std::cout << "about to retrieve results" << std::endl;
+
     result.fromLua(L);
     return Success;
+}
+
+int Sandbox::callPlugin(lua_State *L) {
+    GET_THIS(Sandbox, This);
+
+    lua_settop(L, 3);
+    luaL_checktype(L, 1, LUA_TSTRING);
+    luaL_checktype(L, 2, LUA_TSTRING);
+    luaL_checktype(L, 3, LUA_TTABLE);
+
+    std::string plugin = lua_tostring(L, 1);
+    std::string intent = lua_tostring(L, 2);
+
+    // Try to get the plugin config
+    if (!Config::i().has(plugin, PluginConfig)) {
+        lua_pushstring(L, "Plugin configuration missing");
+        lua_error(L);
+        return 0;
+    }
+
+    // Try to get the path to the shared library
+    JSON::Value &config = Config::i().get(plugin, PluginConfig);
+    if (!config["path"].is(JSON::JSON_STRING)) {
+        lua_pushstring(L, "Plugin path missing or invalid");
+        lua_error(L);
+        return 0;
+    }
+    std::string path = config["path"].as<std::string>();
+
+    // Try to get an instance of the plugin
+    Plugin *instance = PluginRegistry::i().newInstance(plugin, path, config, false);
+    if(!instance) {
+        lua_pushstring(L, "Failed to load plugin");
+        lua_error(L);
+        return 0;
+    }
+
+    // Read the payload from the function arguments
+    JSON::Value payload;
+    payload.fromLua(L);
+
+    // Invoke the plugin and immediately destroy the instance
+    JSON::Value result = instance->call(intent, payload);
+    PluginRegistry::i().destroyUnregisteredInstance(plugin, path, instance);
+
+    // Return the result to Lua
+    result.toLua(L);
+    return 1;
 }
 
 void Sandbox::hook(lua_State *L, lua_Debug *) {

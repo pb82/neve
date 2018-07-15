@@ -33,6 +33,9 @@ public:
     void configure(JSON::Value &config);
     void start();
 
+    void globalInit();
+    void globalCleanup();
+
     JSON::Value call(const std::string &intent, JSON::Value &args);
 
 private:
