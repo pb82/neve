@@ -38,8 +38,6 @@ Action *Cache::read(std::string &name) {
 
     if (!db) return nullptr;
 
-    logger.debug("Action %s not found in cache", name.c_str());
-
     JSON::Value payload = JSON::Object {
         {"collection", SYS_COL_ACTIONS},
         {"query", JSON::Object {{"name", name}}}
@@ -75,8 +73,6 @@ Action *Cache::read(std::string &name) {
 void Cache::list(JSON::Array &actions) {
     if (dirty && db) {
         listBackend();
-    } else {
-        logger.debug("Listing actions from cache");
     }
 
     Actions::iterator iter;
@@ -105,8 +101,6 @@ void Cache::storeBackend(Action *action) {
 
     if(!result["success"].as<bool>()) {
         logger.error("%s", printer.print(result).c_str());
-    } else {
-        logger.debug("Action `%s' stored in database", action->name.c_str());
     }
 }
 
@@ -128,7 +122,6 @@ void Cache::listBackend() {
             cached[action->name] = std::unique_ptr<Action>(action);
         }
 
-        logger.debug("Cache repopulated from database");
         dirty = false;
     }
 }
@@ -144,10 +137,8 @@ bool Cache::deleteBackend(std::string &name) {
     if(!result["success"].as<bool>()) {
         logger.error("%s", printer.print(result).c_str());
         return false;
-    } else {
-        logger.debug("%s", printer.print(result).c_str());
-        return true;
     }
+    return true;
 }
 
 bool Cache::updateBackend(Action *action) {
@@ -165,8 +156,6 @@ bool Cache::updateBackend(Action *action) {
     if(!result["success"].as<bool>()) {
         logger.error("%s", printer.print(result).c_str());
         return false;
-    } else {
-        logger.debug("%s", printer.print(result).c_str());
-        return true;
     }
+    return true;
 }

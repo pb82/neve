@@ -27,3 +27,7 @@ Plugin "mongo" {
 	connectionString="mongodb://localhost:27017",
 	database="userdata"
 }
+
+Plugin "skeleton" {
+	path="./plugins/default/skeleton/plugin_skeleton.so",
+}

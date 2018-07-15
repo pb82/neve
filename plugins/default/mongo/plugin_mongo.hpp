@@ -4,6 +4,7 @@
 #include <libmongoc-1.0/mongoc.h>
 #include <memory>
 #include <map>
+#include <mutex>
 
 #include "../../plugin.hpp"
 #include "../../../json/printer.hpp"
@@ -50,6 +51,7 @@ private:
     mongoc_database_t *db = nullptr;
 
     std::map<std::string, std::unique_ptr<Intent>> intents;
+    std::mutex mutex;
 };
 
 // Creates the entrypoint for the server to create an instance

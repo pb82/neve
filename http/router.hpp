@@ -10,6 +10,8 @@
 
 class HttpRouter {
 public:
+    ~HttpRouter();
+
     /**
      * @brief get Register a GET request handler
      * @param route The path pattern to register the handler for

@@ -48,6 +48,7 @@ public:
     JSON::Value &get(std::string &key, ConfigType type = ServerConfig);
     bool has(const char *key, ConfigType type = ServerConfig);
     bool has(std::string& key, ConfigType type = ServerConfig);
+    std::map<std::string, JSON::Value> &getAll(ConfigType type);
 
 private:
     Config();

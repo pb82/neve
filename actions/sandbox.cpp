@@ -110,15 +110,12 @@ RunCode Sandbox::run(JSON::Value &args, JSON::Value &result, std::string *msg) {
         return ErrMain;
     }
 
-    std::cout << "about to retrieve results" << std::endl;
-
     result.fromLua(L);
     return Success;
 }
 
 int Sandbox::callPlugin(lua_State *L) {
     GET_THIS(Sandbox, This);
-
     lua_settop(L, 3);
     luaL_checktype(L, 1, LUA_TSTRING);
     luaL_checktype(L, 2, LUA_TSTRING);
@@ -127,24 +124,7 @@ int Sandbox::callPlugin(lua_State *L) {
     std::string plugin = lua_tostring(L, 1);
     std::string intent = lua_tostring(L, 2);
 
-    // Try to get the plugin config
-    if (!Config::i().has(plugin, PluginConfig)) {
-        lua_pushstring(L, "Plugin configuration missing");
-        lua_error(L);
-        return 0;
-    }
-
-    // Try to get the path to the shared library
-    JSON::Value &config = Config::i().get(plugin, PluginConfig);
-    if (!config["path"].is(JSON::JSON_STRING)) {
-        lua_pushstring(L, "Plugin path missing or invalid");
-        lua_error(L);
-        return 0;
-    }
-    std::string path = config["path"].as<std::string>();
-
-    // Try to get an instance of the plugin
-    Plugin *instance = PluginRegistry::i().newInstance(plugin, path, config, false);
+    Plugin *instance = PluginRegistry::i().getInstance(plugin);
     if(!instance) {
         lua_pushstring(L, "Failed to load plugin");
         lua_error(L);
@@ -157,9 +137,9 @@ int Sandbox::callPlugin(lua_State *L) {
 
     // Invoke the plugin and immediately destroy the instance
     JSON::Value result = instance->call(intent, payload);
-    PluginRegistry::i().destroyUnregisteredInstance(plugin, path, instance);
 
     // Return the result to Lua
+    // JSON::Value result = "test";
     result.toLua(L);
     return 1;
 }

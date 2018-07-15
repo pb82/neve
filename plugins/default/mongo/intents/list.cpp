@@ -40,12 +40,14 @@ bool IntentList::call(JSON::Value &args, JSON::Value *result) {
 
     const bson_t *doc;
     *result = JSON::Array {};
+
     while (mongoc_cursor_next(cursor, &doc)) {
         bson_iter_t it;
         bson_iter_init(&it, doc);
 
         JSON::Value item;
         item.fromBson(&it);
+
         result->push_back(item);
         success = true;
     }

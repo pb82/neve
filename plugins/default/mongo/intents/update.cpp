@@ -44,6 +44,7 @@ bool IntentUpdate::call(JSON::Value &args, JSON::Value *result) {
     mongoc_collection_t *col = getCollection(collection.c_str());
     if (!mongoc_collection_update_many(col, &queryDoc, &doc, nullptr, &reply, &error)) {
         mongoc_collection_destroy(col);
+        bson_destroy(&queryDoc);
         *result = error.message;
         return false;
     }
@@ -51,6 +52,7 @@ bool IntentUpdate::call(JSON::Value &args, JSON::Value *result) {
     bson_iter_t it;
     mongoc_collection_destroy(col);
     bson_iter_init(&it, &reply);
+    bson_destroy(&doc);
     result->fromBson(&it);
     return true;
 }

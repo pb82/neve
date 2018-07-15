@@ -89,6 +89,12 @@ void Config::load(const char *file) {
     lua_close(L);
 }
 
+std::map<std::string, JSON::Value> &Config::getAll(ConfigType type) {
+    return type == ServerConfig
+        ? serverConfig
+        : pluginConfig;
+}
+
 JSON::Value &Config::get(const char *key, ConfigType type) {
     return type == ServerConfig
         ? serverConfig[key]

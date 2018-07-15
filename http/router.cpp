@@ -1,5 +1,9 @@
 #include "router.hpp"
 
+HttpRouter::~HttpRouter() {
+    routes.clear();
+}
+
 void HttpRouter::get(const char *route, MatchCallback cb) {
     registerHandler(GET, route, cb);
 }

@@ -11,6 +11,31 @@ PluginRegistry& PluginRegistry::i() {
     return instance;
 }
 
+void PluginRegistry::loadFromConfig() {
+    std::map<std::string, JSON::Value> plugins = Config::i().getAll(PluginConfig);
+    for (const auto& pair : plugins) {
+        std::string name = pair.first;
+        JSON::Value config = pair.second;
+
+        if (!config["path"].is(JSON::JSON_STRING)) {
+            logger.error("Path missing for plugin `%s`", name.c_str());
+            continue;
+        }
+
+        std::string path = config["path"].as<std::string>();
+        Plugin *plugin = newInstance(name, path, config);
+        instances[name] = plugin;
+    }
+}
+
+Plugin *PluginRegistry::getInstance(std::string name) {
+    if (instances.find(name) == instances.end()) {
+        return nullptr;
+    }
+
+    return instances[name];
+}
+
 void PluginRegistry::cleanup() {
     // Iterate over all handles and invoke the destructor
     // for every instance
@@ -23,17 +48,17 @@ void PluginRegistry::cleanup() {
             }
 
             handle->destructor(instance);
-
-            // Close the library and free the memory of the
-            // handle
-            uv_dlclose(handle->handle);
-            free(handle->handle);
         }
+
+        // Close the library and free the memory of the
+        // handle
+        uv_dlclose(handle->handle);
+        free(handle->handle);
     }
 }
 
 Plugin *PluginRegistry::newInstance(std::string name, std::string& path,
-                                    JSON::Value &config, bool registered) {
+                                    JSON::Value &config) {
     logger.debug("Creating a new instance of plugin %s", name.c_str());
     PluginHandle* handle = getHandle(name, path);
     if (!handle) {
@@ -57,14 +82,8 @@ Plugin *PluginRegistry::newInstance(std::string name, std::string& path,
         return nullptr;
     }
 
-    if (registered) handle->instances.push_back(instance);
+    handle->instances.push_back(instance);
     return instance;
-}
-
-void PluginRegistry::destroyUnregisteredInstance(std::string name, std::string path,
-                                                 Plugin *instance) {
-    PluginHandle *handle = getHandle(name, path);
-    handle->destructor(instance);
 }
 
 PluginHandle* PluginRegistry::getHandle(std::string name, std::string& path) {

@@ -107,6 +107,8 @@ int main() {
     Logger::configure(Config::i().get("logger"));
     Logger logger;
 
+    PluginRegistry::i().loadFromConfig();
+
     // Try to load the mongo plugin and set up persistence
     if(!tryLoadPersistence()) {
         logger.warn("No persistence provider loaded");

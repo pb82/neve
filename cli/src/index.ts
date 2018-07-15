@@ -14,6 +14,7 @@ import runAction from "./commands/run-action";
 import getAction from "./commands/get-action";
 import deleteAction from "./commands/delete-action";
 import updateAction from "./commands/update-action";
+import resolveToken from "./commands/resolve";
 
 function logSuccess(result: any) {
     info("Operation successful");
@@ -126,6 +127,15 @@ function main() {
         .description("Delete action")
         .action(name => {
             deleteAction(name, config(program))
+                .then(logSuccess)
+                .catch(logError);
+        });
+
+    program
+        .command("resolve <token>")
+        .description("Get result of async operation")
+        .action(token => {
+            resolveToken(token, config(program))
                 .then(logSuccess)
                 .catch(logError);
         });

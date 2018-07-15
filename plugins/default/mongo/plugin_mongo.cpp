@@ -7,6 +7,7 @@ std::string PluginMongo::name() const {
 PluginMongo::~PluginMongo() {
     if (db) mongoc_database_destroy(db);
     if (client) mongoc_client_destroy(client);
+    intents.clear();
 }
 
 void PluginMongo::globalInit() {
@@ -54,6 +55,9 @@ void PluginMongo::configure(JSON::Value &config) {
 }
 
 JSON::Value PluginMongo::call(const std::string &intent, JSON::Value &args) {
+    // TODO: use the mongo connection pool to get rid of this lock
+    std::lock_guard<std::mutex> lock(mutex);
+
     if (intents.find(intent) == intents.end()) {
         return JSON::Object {
             {"success", false},
